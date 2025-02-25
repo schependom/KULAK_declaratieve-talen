@@ -36,7 +36,8 @@ diepte(node(L, _, R), D) :-     % Niet-lege boom met LDB L, RDB R en waarde die 
 */
 
 % Base case: Evaluating a number just returns the number itself.
-eval(number(N), N) :- number(N).
+% eval(number(N), N) :- number(N).
+eval(number(N), N).
 
 % Evaluating arithmetic expressions
 
@@ -106,3 +107,4 @@ eval(not(A), fal) :-
 
     ?- eval(and(=(plus(number(3),number(4)),number(5)),not(or(fal,fal))),X).
             X = fal.
+*/
