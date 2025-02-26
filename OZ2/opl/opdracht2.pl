@@ -3,7 +3,7 @@
 % waarbij de puntjes voor een berekening staan. (X is (3+2)**2 + 17)
 
 % In deze oefening gebruiken we een andere voorstelling van de getallen. 
-% Het getal 0 wordt voorgesteld door het atoom. 
+% Het getal 0 wordt voorgesteld door het atoom nul.
 % Vertrek van
 
 peano_plus(zero,X,X).
