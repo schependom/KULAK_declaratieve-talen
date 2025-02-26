@@ -35,11 +35,10 @@ diepte(node(L, _, R), D) :-     % Niet-lege boom met LDB L, RDB R en waarde die 
     OEFENING 3 en 4
 */
 
-% Base case: Evaluating a number just returns the number itself.
 % eval(number(N), N) :- number(N).
 eval(number(N), N).
 
-% Evaluating arithmetic expressions
+% ARITHMETISCHE EXPRESSIES EVALUEREN
 
 eval(plus(A, B), Result) :-
     eval(A, Av),
@@ -55,17 +54,21 @@ eval(neg(A), Result) :-
     eval(A, Av),
     Result is -Av.
 
-% Evaluating boolean expressions
+% BOOLEAN EXPRESSIES
+
+% Niet vergeten!
+eval(tru, tru).
+eval(fal, fal).
 
 % Equality
 eval(=(A, B), tru) :-
     eval(A, Av),
-    eval(B, Bv),
-    Av = Bv.
+    eval(B, Bv)
+    % niet nodig: Av = Bv.
 eval(=(A, B), fal) :-
     eval(A, Av),
     eval(B, Bv),
-    Av \= Bv.
+    Av \== Bv.
 
 % AND operator
 eval(and(A, B), tru) :-
