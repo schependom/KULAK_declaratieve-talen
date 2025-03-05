@@ -55,3 +55,8 @@ vertaal([def(Head) | Tail], [stel(Head, Counter) | L], Counter, SymboolTabel) :-
     succ(Counter, NewCounter),                      % NewCounter is Counter + 1
     vertaal(Tail, L, NewCounter, SymboolTabel).
 
+
+/*
+    2. VAKANTIELICHT
+*/
+

@@ -16,10 +16,10 @@ listlength([_|T], Length) :-
 % listlengthAcc/2 -> initialiseer accumulator van listlengthAcc/3 op nul
 listlengthAcc(List, Length) :- listlengthAcc(List, 0, Length). 
 
+listlengthAcc([], Acc, Acc).
 listlengthAcc([_|T], Acc, Length) :-
     NewAcc is Acc + 1,
     listlengthAcc(T, NewAcc, Length).
-listlengthAcc([], Acc, Acc).            % resultaat pas helemaal op het eind berekend
 
 % Laatst/2 geeft het laatste element van een lijst terug
 laatst([X], X).
@@ -120,33 +120,59 @@ zoekwaarde( [ _ | Tail ], Key, Value ) :- zoekwaarde( Tail, Key, Value ).       
 % Gegeven een symmetrische graaf met als vertices {a, b, c, d} en verbindingen tussen (a, b), (b, c), (b, d) en (c, d).
 
 %   a. Bedenk een voorstelling van de graaf in Prolog.
-%   -> edge/2
-edge(a, b).
-edge(b, c).
-edge(b, d).
-edge(c, d).
+%       -> we gebruiken het predicaat v(x) dat slaagt als x een vertex is in de graaf
+%       -> we gebruiken het predicaat e(x,y) om een verbinding in een grafe voor te stellen
+
+v(a).
+v(b).
+v(c).
+v(d).
+v(e).
+
+e(a,b).
+e(b,c).
+e(b,d).
+e(c,d).
 
 %   b. Implementeer het predicaat buur/2 dat slaagt als twee vertices onmiddellijk met elkaar verbonden zijn.
-buur(X, Y) :- !, edge(X, Y).    % De cut (!) voorkomt dat onderstaande regel wordt uitgevoerd
-buur(X, Y) :- edge(Y, X).       % Disjunctie
+
+buur(X,Y) :-
+	e(X,Y).
+buur(X,Y) :-
+	e(Y,X).
 
 %   c. Implementeer een predicaat pad/2 dat slaagt telkens twee vertices door een pad in de graaf verbonden.
 %   -> Let op voor oneindige lussen
 
-% pad/2: slaagt als er een pad is tussen twee nodes
+% Naieve versie
+pad_n(X,Y) :-
+	buur(X,Y).
+pad_n(X,Y) :-
+	buur(X,Z),
+	pad_n(Z,Y).
 
-pad(X, Y) :- buur(X, Y).                % Basisgeval: directe verbinding
-pad(X, Y) :- buur(X, Z), pad(Z, Y).      
+% Verbeterde versie die bijhoudt welke nodes al bezocht zijn
+pad(X,Y) :- pad(X,[X],Y).
+
+pad(X,Bezocht,Y) :-
+	buur(X,Y),
+	\+ member(Y,Bezocht).                   % Y werd nog niet bezocht
+pad(X,Bezocht,Y) :-
+	buur(X,Z),
+	\+ member(Z,Bezocht),                   % Z werd nog niet bezocht
+	%append(Bezocht,[Z],BezochtNieuw),
+	pad(Z,[Z | Bezocht],Y).                 % Voeg Z toe aan de lijst van bezochte nodes
 
 /*
     ?- pad(a, d).
         true.
 
-    ?- pad(a, X).
+    ?- pad(a,X).
         X = b ;
         X = c ;
         X = d ;
-        X = D .
+        X = d ;
+        X = c ;
 */
 
 
@@ -159,24 +185,24 @@ pad(X, Y) :- buur(X, Z), pad(Z, Y).
 %%%%
 % Naief
 
-fib(0, 0).
-fib(1, 1).
+fib_naief(0, 0).
+fib_naief(1, 1).
 
 % N: 0, 1, 2, 3, 4, 5, 6,  7,  8,  9, ...
 % G: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ...
-fib(N, G) :-
+fib_naief(N, G) :-
     N > 1,          % OF:
     N1 is N - 1,    % succ(N1, N)
     N2 is N - 2,    % succ(N2, NM1)
-    fib(N1, G1),
-    fib(N2, G2),
+    fib_naief(N1, G1),
+    fib_naief(N2, G2),
     G is G1 + G2.
 
 /*
-    ?- fib(5,X).
+    ?- fib_naief(5,X).
         X = 5 .
 
-    ?- fib(9,X).
+    ?- fib_naief(9,X).
         X = 34 ;
 */
 
@@ -187,14 +213,17 @@ fib(N, G) :-
 % fib_acc/3 -> initialiseer accumulatoren van fib_acc/4 op 0 en 1
 fib_acc(N, G) :- fib_acc(N, 0, 1, G).
 
-% fib_acc/4 -> slaagt wanneer voor fib_acc(N, Acc1, Acc2, G) geldt dat G het N-de fibonaccigetal is.
-fib_acc(0, Acc1, _, Acc1).
-fib_acc(1, _, Acc2, Acc2).
-fib_acc(N, Acc1, Acc2, G) :-
-    N > 0,
-    LoweredN is N - 1,
-    NewAcc is Acc1 + Acc2,
-    fib_acc(LoweredN, Acc2, NewAcc, G).
+% fib_acc/4 -> slaagt wanneer voor fib_acc(N, S1, S2, G) geldt dat G het N-de fibonaccigetal is.
+% 	-> S1 is een fibonaccigetal
+% 	-> S2 is het fibonaccigetal volgend op S1 na 1 stap
+% 	-> X is het fibonaccigetal volgend op S1 na N stappen
+fib_acc(0, S1, _, S1).
+fib_acc(1, _, S2, S2).
+fib_acc(N, S1, S2, G) :-
+    N > 1,
+    LoweredN is N - 1,                  % of succ(LoweredN, N)
+    S is S1 + S2,
+    fib_acc(LoweredN, S2, S, G).
 
 /*
     ?- fib_acc(5,X).
@@ -271,22 +300,51 @@ voegtoe(W, node(L, V, R), node(NL, V, NR)) :-
 %   -> Depth = diepte van de boom met worden vanuit deze knoop
 
 % Diepte bepalen
-newdiepte(nil, 0).
-newdiepte(node(_, _, _, D), D).
+extra_diepte(nil, 0).
+extra_diepte(node(_, _, _, D), D).
 
 % Voeg een waarde W toe 
 %   -> voegtoe(W, Boom, NieuweBoom)
 
-newvoegtoe(W, nil, node(nil, W, nil, 1)).           % Basisgeval: lege boom
-newvoegtoe(W, node(L, V, R, _), NieuweBoom) :-      % Recursief geval
-    newdiepte(L, DL), newdiepte(R, DR),             % Bepaal diepte linker en rechter subboom
-    (DL =< DR ->                                    % IF            (diepte linker subboom <= diepte rechter subboom)
-        newvoegtoe(W, L, NL),                       %   ->  THEN:   Voeg toe aan linker subboom
-        NieuweDiepte is DR + 1,                     %               Bepaal diepte van nieuwe boom
-        NieuweBoom = node(NL, V, R, NieuweDiepte) ; %               Nieuwe boom met nieuwe linker subboom
-        newvoegtoe(W, R, NR),                       %   ->  ELSE:   Voeg toe aan rechter subboom
-        NieuweDiepte is DL + 1,                     %               Bepaal diepte van nieuwe boom
-        NieuweBoom = node(L, V, NR, NieuweDiepte)   %               Nieuwe boom met nieuwe rechter subboom
+extra_voegtoe(W, nil, node(nil, W, nil, 1)).           % Basisgeval: lege boom
+
+% MODELOPLOSSING: aparte regel voor elk geval (DL < DR, DL > DR, DL = DR)
+
+% DL < DR
+%                                   ↓ nieuwe boom ↓  
+extra_voegtoe(W, node(L, V, R, D), node(NL, V, R, D)) :- 
+    extra_diepte(L, DL), 
+    extra_diepte(R, DR),
+    DL < DR,
+    extra_voegtoe(W, L, NL).    % voeg toe aan LDB
+
+% DL > DR
+%                                   ↓ nieuwe boom ↓
+extra_voegtoe(W, node(L, V, R, D), node(L, V, NR, D)) :- 
+    extra_diepte(L, DL), 
+    extra_diepte(R, DR),
+    DL > DR,
+    extra_voegtoe(W, R, NR).    % voeg toe aan RDB
+
+% DL = DR
+% Nu verandert de diepte wel!
+extra_voegtoe(W, node(L, V, R, D), node(NL, V, R, NieuweDiepte)) :- 
+    extra_diepte(L, DL), 
+    extra_diepte(R, DR),
+    DL = DR,
+    succ(D, NieuweDiepte),      % Nieuwe diepte is D + 1
+    extra_voegtoe(W, L, NL).    % voeg toe aan LDB
+
+% EIGEN VERSIE
+extra_voegtoe(W, node(L, V, R, _), NieuweBoom) :-      % Recursief geval
+    extra_diepte(L, DL), extra_diepte(R, DR),          % Bepaal diepte linker en rechter subboom
+    (DL =< DR ->                                       % IF            (diepte linker subboom <= diepte rechter subboom)
+        extra_voegtoe(W, L, NL),                       %   ->  THEN:   Voeg toe aan linker subboom
+        NieuweDiepte is DR + 1,                        %               Bepaal diepte van nieuwe boom
+        NieuweBoom = node(NL, V, R, NieuweDiepte) ;    %               Nieuwe boom met nieuwe linker subboom
+        extra_voegtoe(W, R, NR),                       %   ->  ELSE:   Voeg toe aan rechter subboom
+        NieuweDiepte is DL + 1,                        %               Bepaal diepte van nieuwe boom
+        NieuweBoom = node(L, V, NR, NieuweDiepte)      %               Nieuwe boom met nieuwe rechter subboom
     ).
 
 /*
@@ -327,40 +385,77 @@ newvoegtoe(W, node(L, V, R, _), NieuweBoom) :-      % Recursief geval
         - Ga zo verder tot enkel de priemgetallen overschieten
 */
 
-% Genereer een lijst met getallen van 2 tot K-1
-range(Low, High, []) :- Low >= High.
+% Genereer een lijst met getallen van Low to High (exclusief High)
+range(N, N, []).                    % Low = High -> stop recursie
 range(Low, High, [Low | Rest]) :- 
     Low < High,
     Next is Low + 1,
     range(Next, High, Rest).
 
+/*
+    ?- range(2, 10, X).
+        X = [2, 3, 4, 5, 6, 7, 8, 9].
+*/
+
+% Genereer een lijst met getallen van 2 (!!) tot N (exclusief N)
+getallen(1, []).                % Basisgeval
+getallen(N, G) :-
+    N > 1,
+    range(2, N, G).
+
+/*
+    ?- getallen(10,X).
+        X = [2, 3, 4, 5, 6, 7, 8, 9].
+*/
+
 % Verwijder veelvouden van een getal uit een lijst
 verwijder_veelvouden(_, [], []).
+
+% Veelvoud -> verwijder head en ga verder met de tail
 verwijder_veelvouden(N, [H | T], Rest) :-
-    (H mod N =:= 0 -> verwijder_veelvouden(N, T, Rest)
-    ; Rest = [H | RestT], verwijder_veelvouden(N, T, RestT)).
+    H mod N =:= 0,
+    verwijder_veelvouden(N, T, Rest).
 
-% Sieve of Eratosthenes: iteratief veelvouden verwijderen
-zeef([], []).
-zeef([P | Rest], [P | Priemgetallen]) :-
-    verwijder_veelvouden(P, Rest, Gefilterd),
-    zeef(Gefilterd, Priemgetallen).
+% Geen veelvoud -> hou head (append bij resultaat recursieve call)
+verwijder_veelvouden(N, [H | T], [H | RestT]) :-
+    H mod N =\= 0,
+    verwijder_veelvouden(N, T, RestT).
 
-% allepriem(X, K) geeft priemgetallen X kleiner dan K
-allepriem(X, K) :- 
-    range(2, K, Getallen),
-    zeef(Getallen, Priemgetallen),
-    member(X, Priemgetallen).
+/*
+    ?- verwijder_veelvouden(2, [1,2,3,4,5,6], X).
+        X = [1, 3, 5].
+    ?- verwijder_veelvouden(3, [1,2,3,4,5,6], X).
+        X = [1, 2, 4, 5].
+*/
+
+% Finale regel
+allepriem(N,Resultaat) :-
+    getallen(N,Getallen),
+    allepriem([],Getallen,RevResultaat),
+    reverse(RevResultaat, Resultaat).       % hoeft niet als je append gebruikt in recursief geval
+
+% Basisgeval: de tail is leeg en we hebben enkel priemgetallen over
+allepriem(Res, [], Res).
+
+% Recursief geval: verwijder veelvouden van head uit tail
+allepriem(Acc, [Head | Tail], Resultaat) :-
+    % append(H,[P],HP),                     % uit modeloplossing
+    verwijder_veelvouden(Head,Tail,NieuweTail),
+    % Voeg head toe aan accumulator
+    allepriem([Head | Acc], NieuweTail, Resultaat).
+
+/*
+    ?- allepriem(10,X).
+        X = [7, 5, 3, 2].
+*/
 
 
 /*
     6. UITDRUKKING
 */
 
-%int(_) :- integer.
-%pair(X, Y) :- int(X), var(Y).
-
 eval(int(X), _, X).
+
 eval(var(X), [pair(X, Value) | _], Value).
 eval(var(X), [pair(Y, _) | Rest], Value) :- 
     X \== Y,
