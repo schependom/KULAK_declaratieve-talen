@@ -165,9 +165,9 @@ fib(1, 1).
 % N: 0, 1, 2, 3, 4, 5, 6,  7,  8,  9, ...
 % G: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ...
 fib(N, G) :-
-    N > 1,
-    N1 is N - 1,
-    N2 is N - 2,
+    N > 1,          % OF:
+    N1 is N - 1,    % succ(N1, N)
+    N2 is N - 2,    % succ(N2, NM1)
     fib(N1, G1),
     fib(N2, G2),
     G is G1 + G2.
@@ -188,6 +188,7 @@ fib(N, G) :-
 fib_acc(N, G) :- fib_acc(N, 0, 1, G).
 
 % fib_acc/4 -> slaagt wanneer voor fib_acc(N, Acc1, Acc2, G) geldt dat G het N-de fibonaccigetal is.
+fib_acc(0, Acc1, _, Acc1).
 fib_acc(1, _, Acc2, Acc2).
 fib_acc(N, Acc1, Acc2, G) :-
     N > 0,
@@ -356,12 +357,13 @@ allepriem(X, K) :-
     6. UITDRUKKING
 */
 
-int(_) :- integer.
-pair(X, Y) :- int(X), var(Y).
+%int(_) :- integer.
+%pair(X, Y) :- int(X), var(Y).
 
 eval(int(X), _, X).
 eval(var(X), [pair(X, Value) | _], Value).
-eval(var(X), [pair(_, _) | Rest], Value) :- 
+eval(var(X), [pair(Y, _) | Rest], Value) :- 
+    X \== Y,
     eval(var(X), Rest, Value).
 
 eval(plus(E1, E2), Lijst, Value) :-
