@@ -1,5 +1,5 @@
 /*
-    1. ONE-PASS TRANSLATION (werkt nu, bedankt.)
+    1. ONE-PASS TRANSLATION
 */
 
 /*
@@ -31,30 +31,33 @@
 */
 
 % Overload
-vertaal(Invoer, L) :-
-    vertaal(Invoer, L, 1, [_ | _]).
+vertaal(Invoer, Resultaat) :-
+    vertaal(Invoer, Resultaat, 1, [_ | _]). % initialiseer symbooltabel op [_ | _] -> onvolledige lijst
 
-vertaal([], _, _, _).
-
-% gebr(x) na def(x)
-%   => index zit al in de symbooltabel
-%   => voeg gebr(x) toe aan de uitvoer
-vertaal([gebr(Head) | Tail], [gebr(Index) | L], Counter, SymboolTabel) :-
-    member(Index-Head, SymboolTabel), !,            % uitroepteken zorgt ervoor dat we niet naar het choice point gaan voor vertaal/3
-    vertaal(Tail, L, Counter, SymboolTabel).        %   --> de keuze voor dit hoofd ligt nu vast en we gaan niet daar de regel hieronder.
-
-% gebr(x) vóór def(x)
-vertaal([gebr(Head) | Tail], [ gebr(TBD_Index) | L ], Counter, SymboolTabel) :-
-    \+ member(Counter-Head, SymboolTabel), !,       % check of deze index nog niet in de symbooltabel zit
-    member(TBD_Index-Head, SymboolTabel), !,        % voeg _INTERNE_VARIABELE-x toe aan de symbooltabel
-    vertaal(Tail, L, Counter, SymboolTabel).     %   => deze variabele wordt later ge-unificeerd met N wanneer def(x) wordt gezien
+% vertaal(Invoer, Resultaat, Counter, SymboolTabel)
+vertaal([], [], _, _).
 
 % def() geeft geen probleem.
-vertaal([def(Head) | Tail], [stel(Head, Counter) | L], Counter, SymboolTabel) :-
+vertaal([def(Head) | Tail], [stel(Head, Counter) | RestResultaat], Counter, SymboolTabel) :-
     member(Counter-Head, SymboolTabel), !,          % voeg een entry toe aan de symbooltabel
     succ(Counter, NewCounter),                      % NewCounter is Counter + 1
-    vertaal(Tail, L, NewCounter, SymboolTabel).
+    vertaal(Tail, RestResultaat, NewCounter, SymboolTabel).
 
+% Bij gebr(X) 2 gevallen:
+%   -> gebr(X) kan NA def(X) komen
+%       =>  In dit geval zit CounterX-X al in symbooltabel
+%       =>  Voeg gebr(CounterX) toe aan output.
+%   -> gebr(x) kan VÓÓR def(x) komen
+%       =>  In dit geval zit X nog niet in de symbooltabel
+%       =>  Zet TijdelijkeCounter-X in symbooltabel
+%       =>  TijdelijkeCounter is een _INTERNE variabele die later zal geünificeerd worden
+%           met de effectieve Counter op het moment dat def(X) wordt gezien
+vertaal([gebr(X) | Tail], [gebr(Index) | RestResultaat], Counter, SymboolTabel) :-
+    member(Index-X, SymboolTabel), !, 
+    vertaal(Tail, RestResultaat, Counter, SymboolTabel).
+
+% member(Index-X,SymboolTabel),! slaagt altijd juist 1 x.
+%        en Index-X unificeert met een term die voorkomt in de SymboolTabel
 
 /*
     2. VAKANTIELICHT
@@ -73,52 +76,99 @@ vertaal([def(Head) | Tail], [stel(Head, Counter) | L], Counter, SymboolTabel) :-
         2) Knoop heeft X verb met kleur => minstens X verb met andere kleur
 */
 
-punt(X) :- snelweg(_, X, _). % voorkom oneindige lussen met de cut (!)
-punt(X) :- snelweg(X, _, _), !.
+snelweg(1,2,c).
+snelweg(2,3,a).
+snelweg(1,3,b).
+snelweg(3,5,a).
+snelweg(3,4,c).
+snelweg(5,4,d).
+snelweg(5,3,d).
 
-% Basisgeval
-count_connections_from_list([], _, Acc, Acc).
-% Recursief geval: voeg nog niet geteld punt toe aan Geteld
-count_connections_from_list([Head | Tail], Geteld, Acc, Result) :-
-    \+ member(Head, Geteld),
-    succ(Acc, NewAcc),
-    count_connections_from_list(Tail, [Head | Geteld], NewAcc, Result).
+punt(X) :- snelweg(_, X, _).
+punt(X) :- snelweg(X, _, _).
 
-% Tel aantal verbonden punten met bepaalde kleur
-count_connections_with_color(Punt, Result, Kleur) :-
-    findall(VerbPunt, ( snelweg(Punt,VerbPunt,Kleur) ; snelweg(VerbPunt,Punt,Kleur) ), Lijst),
-    count_connections_from_list(Lijst, [], 0, Result).
-
-% Kleur doet er niet toe
-count_connections(P, R) :- count_connections_with_color(P, R, _).
-
-% Check 1: even aantal verbonden knopen
-check1 :-
-    punt(X),
-    count_connections(X, Result),
-    Result mod 2 =\= 0, !.          % als voldaan -> \+check1 is false -> stop met zoeken
-
-check2 :-
-    punt(X),
-    snelweg(X, _, Kleur),
-    snelweg(X, _, AndereKleur),
-    Kleur \== AndereKleur,
-    count_connections_with_color(X, Result, Kleur),
-    count_connections_with_color(X, AnderResult, AndereKleur),
-    AnderResult < Result.
-
-check2 :-
-    punt(X),
-    snelweg(_, X, Kleur),
-    snelweg(_, X, AndereKleur),
-    Kleur \== AndereKleur,
-    count_connections_with_color(X, Result, Kleur),
-    count_connections_with_color(X, AnderResult, AndereKleur),
-    AnderResult < Result.
+weg(X, Y-Kleur) :-
+    snelweg(X, Y, Kleur); snelweg(Y, X, Kleur).       % als voorgaande regel n.v.t. is.
 
 check :-
-    \+ check1,     % er bestaat geen knoop die een oneven aantal verbonden knopen heeft
-    \+ check2.     % er bestaat geen knoop die meer verbindingen heeft met een kleur dan met de andere kleur
+    punt(X),                        % Leg een (keuze)punt vast -> mogelijkheid tot backtracken voorzien.
+    \+ oneven(punt(X)),             % Als die knoop een oneven aantal verbonden knopen heeft, faalt oneven/0.
+    \+ nietInBalans(punt(X)), !.    % ALs die knoop x wegen heeft met een bepaalde kleur en minder dan x wegen met een andere kleur, faalt nietInBalans/0.
+
+% Bepaal het aantal verbonden knopen = graad.
+graad(punt(X), Graad) :-
+    findall(Y, weg(X, Y-_), VerbondenKnopen),
+    length(VerbondenKnopen, Graad).
+
+% punt(X) heeft een oneven graad.
+oneven(punt(X)) :-
+    graad(X, Graad),
+    Graad mod 2 =:= 1, !.
+
+% Niet in balans    <=>     punt(X) heeft meer verbonden knopen via weg met bepaalde kleur dan via wegen met andere kleuren
+%                   <=>     graad(X) >= 2 * AantalVerbMetKleur !!
+nietInBalans(punt(X)) :-
+    weg(X, _-Kleur),                                                        % Leg een kleur vast -> mogelijkheid tot backtracking
+    findall(VerbKnoop, weg(X, VerbKnoop-Kleur), VerbondenKnopenMetKleur),   % Zoek alle knopen die verb zijn met Kleur.
+    length(VerbondenKnopenMetKleur, AantalVerbMetKleur),                    % Bepaal het aantal van deze verb. knopen
+    AantalMaal2 is AantalVerbMetKleur * 2,                                  % Equivalente voorwaarde
+    graad(X, GraadX),
+    AantalMaal2 =< GraadX, !.                                               % Equivalente voorwaarde
+
+% Overloading
+tour([Stad-Kleur | Tour]) :- 
+    check,
+    % Alle wegen die vanuit stad 1 vertrekken
+    findall(Stad-Kleur, weg(1,Stad-Kleur), WegenVanuit1),
+    length(WegenVanuit1, AantalWegenVanuit1),
+    succ(AantalWegenVanuit1Min1, AantalWegenVanuit1),    % minus 1
+    % Sorteer de wegen, waarbij de stad met het laagste nummer eerst komt.
+    sort(WegenVanuit1, SortedWegenVanuit1),
+    member(Stad-Kleur, SortedWegenVanuit1),
+    % tour(Resterend, Gebruikt, Vervolg)
+    tour(AantalWegenVanuit1Min1, [1-Stad, Stad-1], [Stad-Kleur | Tour]), !.
+
+% tour(Resterend, Gebruikt, Vervolg)
+% Resterend = aantal nog beschikbare wegen vanuit 1
+tour(Resterend, Gebruikt, [LaatsteStad-LaatsteKleur, Stad-Kleur | Tour]) :-
+    % Vind alle wegen vanuit X
+    findall(Stad-Kleur, (               % voorwaarden findall
+        weg(LaatsteStad, Stad-Kleur),
+        (Resterend > 1 ; Stad \= 1),     % niet te vroeg stoppen
+        Kleur \= LaatsteKleur,           % andere kleur dan waarmee werd toegekomen
+        \+ member(LaatsteStad-Kleur,Gebruikt)  
+    ), Routes),
+    sort(Routes, SortedRoutes),
+    member(Stad-Kleur, SortedRoutes),
+    (
+        Stad == 1 ->                            % Mogelijks meerdere keren door stad 1 !!
+            succ(ResterendMin1, Resterend),     % -> verlaag Resterend
+            tour(ResterendMin1, [LaatsteStad-Stad, Stad-LaatsteStad | Gebruikt], [Stad-Kleur | Tour])  
+        ;
+            tour(Resterend, [LaatsteStad-Stad, Stad-LaatsteStad | Gebruikt], [Stad-Kleur | Tour])  
+    ), !. % 1 tour is genoeg.
+
+% We moeten nog terugkeren naar stad 1.
+% Resterend is nu gelijk aan 1.
+tour(1, Gebruikt, [LaatsteStad-LaatsteKleur, 1-Kleur]) :-
+    findall(1-Kleur, (
+        weg(LaatsteStad, 1-Kleur),          % leg een stad en een kleur vast
+        \+ member(LaatsteStad-1, Gebruikt), % pad mag nog niet gebruikt zijn
+        Kleur \= LaatsteKleur               % kleuren moeten verschillen
+    ), [1-Kleur]), !.                       % 1 element in lijst (zie hieronder) !!
+
+/*
+    MERK OP:
+        findall kan zijn resultaat (lijst) unificeren met een single-element
+        lijst als er ook effectief maar 1 element in het resultaat zit.
+
+    VB:
+
+    weg(test, 1-a).
+
+    ?- findall(1-Kleur, weg(test,1-Kleur), [1-Kleur]).
+        Kleur = a.
+*/
 
 /*
     snelweg(1, 2, geel).
@@ -157,26 +207,3 @@ check :-
         false.
 
 */
-
-snelweg(1, 2, geel).
-snelweg(1, 3, geel).
-snelweg(2, 4, blauw).
-snelweg(3, 4, groen).
-
-% Resultaat is een pad vanaf punt 1 en
-% is van de vorm [2-yellow, 3-blue, 1-yellow]
-
-tour(Resultaat) :-
-    check,
-    % TODO
-
-snelweg(1, 2, c).
-snelweg(2, 3, a).
-snelweg(1, 3, b).
-snelweg(3, 5, a).
-snelweg(3, 4, c).
-snelweg(5, 4, d).
-
-
-% Geoverload predicaat
-% toer(Bezocht, LaatsteKleur, )
