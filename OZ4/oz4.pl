@@ -132,7 +132,7 @@ tour([Stad-Kleur | Tour]) :-
 % Resterend = aantal nog beschikbare wegen vanuit 1
 tour(Resterend, Gebruikt, [LaatsteStad-LaatsteKleur, Stad-Kleur | Tour]) :-
     % Vind alle wegen vanuit X
-    findall(Stad-Kleur, (               % voorwaarden findall
+    findall(Stad-Kleur, (                % voorwaarden findall
         weg(LaatsteStad, Stad-Kleur),
         (Resterend > 1 ; Stad \= 1),     % niet te vroeg stoppen
         Kleur \= LaatsteKleur,           % andere kleur dan waarmee werd toegekomen
@@ -151,11 +151,15 @@ tour(Resterend, Gebruikt, [LaatsteStad-LaatsteKleur, Stad-Kleur | Tour]) :-
 % We moeten nog terugkeren naar stad 1.
 % Resterend is nu gelijk aan 1.
 tour(1, Gebruikt, [LaatsteStad-LaatsteKleur, 1-Kleur]) :-
-    findall(1-Kleur, (
-        weg(LaatsteStad, 1-Kleur),          % leg een stad en een kleur vast
-        \+ member(LaatsteStad-1, Gebruikt), % pad mag nog niet gebruikt zijn
-        Kleur \= LaatsteKleur               % kleuren moeten verschillen
-    ), [1-Kleur]), !.                       % 1 element in lijst (zie hieronder) !!
+    findall(
+        1-Kleur, 
+        (
+            weg(LaatsteStad, 1-Kleur),          % leg een stad en een kleur vast
+            \+ member(LaatsteStad-1, Gebruikt), % pad mag nog niet gebruikt zijn
+            Kleur \= LaatsteKleur               % kleuren moeten verschillen
+        ), 
+        [1-Kleur]
+    ), !.                                       % 1 element in lijst (zie hieronder) !!
 
 /*
     MERK OP:
@@ -168,42 +172,4 @@ tour(1, Gebruikt, [LaatsteStad-LaatsteKleur, 1-Kleur]) :-
 
     ?- findall(1-Kleur, weg(test,1-Kleur), [1-Kleur]).
         Kleur = a.
-*/
-
-/*
-    snelweg(1, 2, geel).
-    snelweg(2, 3, blauw).
-    snelweg(1, 3, geel).
-    snelweg(1, 5, rood).        % -> 1 is oneven
-
-    NIET IN ORDE
-
-    ?- \+ check1.
-        false.
-
-    snelweg(1, 2, geel).
-    snelweg(2, 3, blauw).
-    snelweg(1, 3, geel).
-
-    WEL IN ORDE
-
-    ?- \+ check1.
-        true.
-
-    snelweg(1, 2, geel).
-    snelweg(1, 3, geel).
-    snelweg(1, 4, blauw).
-
-    ?- count_connections_with_color(1,Result,rood).
-        Result = 0.
-
-    ?- count_connections_with_color(1,Result,geel).
-        Result = 2.
-
-    ?- count_connections_with_color(1,Result,blauw).
-        Result = 1.
-
-    ?- \+ check2.
-        false.
-
 */
