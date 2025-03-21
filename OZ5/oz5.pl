@@ -81,7 +81,7 @@ single_color_present(Part) :-
     LengthWithoutDuplicates =< 1.
 
 part_has_wall(Part) :-
-    wall_in_part(Part, _), !.   % cut zodat hij stopt met zoeken
+    wall_in_part(Part, _), !.   % cut zodat hij stopt met zoeken!!
 
 /*
     ?- single_color_present(part(0, 0, 5, 4)).
@@ -128,6 +128,7 @@ cut_plan(CuttingPlan, CutsAcc, [part(X1, Y1, X2, Y2) | RestParts], PartsAcc, Par
     cut_plan(CuttingPlan, [cut(v, CutX, Y1, Y2) | CutsAcc], [part(X1, Y1, CutX, Y2), part(CutX, Y1, X2, Y2) | RestParts], PartsAcc, Parts).
 
 % GEEN CUT MOGELIJK
+% part(X1, Y1, X2, Y2) mag ook gewoon Part zijn! -> de argumenten worden nergens meer gebruikt
 cut_plan(CuttingPlan, CutsAcc, [part(X1, Y1, X2, Y2) | RestParts], PartAcc, Parts) :-
     \+ part_has_wall(part(X1, Y1, X2, Y2)),
     single_color_present(part(X1, Y1, X2, Y2)),
@@ -196,4 +197,34 @@ cut_plan(CuttingPlan, CutsAcc, [part(X1, Y1, X2, Y2) | RestParts], PartAcc, Part
             Parts = [part(0, 0, 2, 4), part(2, 0, 3, 4), part(3, 0, 4, 4), part(4, 0, 5, 4)] ;
             Cuts = [cut(v, 4, 0, 4), cut(v, 3, 0, 4), cut(v, 2, 0, 4)],
             Parts = [part(0, 0, 2, 4), part(2, 0, 3, 4), part(3, 0, 4, 4), part(4, 0, 5, 4)] ;
+*/
+
+/*
+    In commentaar:
+        + inputvariabele
+        - outputvariabele
+        ? kan ofwel input of output zijn
+
+    Examen 
+        -> Niet mondeling, enkel schriftelijk
+        -> Oefeningen Haskell en Prolog met theorievragen erbij
+        -> Slides, eigen oplossingen, voorbeeldoplossingen, documentatie SWI Prolog
+        -> Wat is unificatie? Hoe kunnen we hiermee zoeken in Prolog?
+        -> Hoe zoekt Prolog? Uitvoeringsboom, backtracking -> volgorde predicaten en locatie cuts!
+        -> Accumulatoren, open lijsten, staartstructuren,... zijn beter dan append!
+                => MAAR doe dit pas op het eind, als je de rest hebt geïmplementeerd en alles werkt
+
+    Waar op letten?
+        - Cuts (op juiste locatie!)
+        - Findall!
+        - Negatie \+ : wanneer wel/niet gebruiken? Wat is het juist?
+
+    Maandag:
+        - 3 oefeningen
+        - Telkens met subpredicaten
+        - Moeilijkheidsgraad vglb. met laatste oefening laatste OZ.
+        - Geen oefeningen over zaken die we niet gezien hebben
+
+    LET OP
+        - delete/3 is select/3 in SWIPL!!
 */
