@@ -13,7 +13,7 @@ moeder(gerda,hendrik).
 
 /*  Y en X moeten dezelfde vader en moeder hebben.
     X mag niet met zichzelf verwant zijn.
-        => z\==2 built-in die slaagt indien de twee termen niet (aantoonbaar) gelijk zijn */
+        => \== /2 built-in die slaagt indien de twee termen niet (aantoonbaar) gelijk zijn */
 verwante(X,Y):- 
     vader(A,X), 
     moeder(Z,X),

@@ -53,12 +53,13 @@ v(d).
 v(e).
 
 e(a,b).
+e(b,a).
 e(b,c).
 e(b,d).
 e(c,d).
 
 buur(X,Y) :-
-	e(X,Y).
+	e(X,Y), !.
 buur(X,Y) :-
 	e(Y,X).
 

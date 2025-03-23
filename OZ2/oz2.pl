@@ -62,7 +62,7 @@ peano_groter_dan(s(X), s(Y)) :- peano_groter_dan(X, Y).
 
 peano_groter_dan_occurs(s(_), nul).         % Basisgeval: zelfde als hiervoor
 peano_groter_dan_occurs(s(X), s(Y)) :-
-    X \== Y,                                % Expliciete OCCURS CHECK!
+    X \== Y,                                % ! Expliciete OCCURS CHECK!
     peano_groter_dan_occurs(X, Y).          %   ... geconjugeerd met vorige body (zonder occurs)
 
 
@@ -138,14 +138,14 @@ eval(fal, fal).     % zodat ?- eval(fal, X) => X = fal.
 % AND operator
 eval(and(A, B), tru) :-
     eval(A, tru),
-    eval(B, tru).
+    eval(B, tru), !.
 eval(and(_, _), fal).
 
 % OR operator
 eval(or(A, _), tru) :-
-    eval(A, tru).
+    eval(A, tru), !.
 eval(or(_, B), tru) :-
-    eval(B, tru).
+    eval(B, tru), !.
 eval(or(_, _), fal).
 
 % NOT operator

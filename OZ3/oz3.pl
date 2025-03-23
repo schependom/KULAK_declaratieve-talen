@@ -37,7 +37,7 @@ laatst([_|T], Laatst) :- laatst(T, Laatst).
 % Basisgeval
 opeenvolgend(X, Y, [X, Y | _ ] ).                           % X komt voor Y als lijst = [X, Y, ...].
 % Alternatief
-opeenvolgend(X, Y, [X | [Y | _]] ).
+% opeenvolgend(X, Y, [X | [Y | _]] ).
 % Recursief geval
 opeenvolgend(X, Y, [_ | T]) :- opeenvolgend(X, Y, T).       % Anders checken we de staart.
 
@@ -94,9 +94,11 @@ zoekwaarde( [ _ | Tail ], Key, Value ) :- zoekwaarde( Tail, Key, Value ).       
 
 /* Het predicaat \+ gaat na of iets NIET kan bewezen worden.
 
+    NEGATION BY FAILURE
+
     Definitie van dit logisch predicaat:
-        \+ (Goal) :- call(Goal), !, fail.
-        \+ (_).
+    !   \+ (Goal) :- call(Goal), !, fail.
+    !   \+ (_).
 
     ?- \+ member(4, [1, 2, 3]).
         true.
@@ -137,7 +139,7 @@ e(c,d).
 %   b. Implementeer het predicaat buur/2 dat slaagt als twee vertices onmiddellijk met elkaar verbonden zijn.
 
 buur(X,Y) :-
-	e(X,Y).
+	e(X,Y), !.
 buur(X,Y) :-
 	e(Y,X).
 
@@ -283,8 +285,8 @@ voegtoe(W, nil, node(nil, W, nil)).
 voegtoe(W, node(L, V, R), node(NL, V, NR)) :-
     diepte(L, DL),
     diepte(R, DR),
-    (DL=<DR
-    ->  voegtoe(W, L, NL),
+    (   DL =< DR ->
+        voegtoe(W, L, NL),
         NR = R
     ;   voegtoe(W, R, NR),
         NL = L

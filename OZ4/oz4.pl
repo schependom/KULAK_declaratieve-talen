@@ -84,11 +84,13 @@ snelweg(3,4,c).
 snelweg(5,4,d).
 snelweg(5,3,d).
 
-punt(X) :- snelweg(_, X, _).
-punt(X) :- snelweg(X, _, _).
+punt(X) :- !, snelweg(_, X, _).
+punt(X) :- !, snelweg(X, _, _).
 
 weg(X, Y-Kleur) :-
-    snelweg(X, Y, Kleur); snelweg(Y, X, Kleur).       % als voorgaande regel n.v.t. is.
+    snelweg(X, Y, Kleur).
+weg(X, Y-Kleur) :- 
+    snelweg(Y, X, Kleur).           % als voorgaande regel n.v.t. is.
 
 check :-
     punt(X),                        % Leg een (keuze)punt vast -> mogelijkheid tot backtracken voorzien.
@@ -118,15 +120,15 @@ nietInBalans(punt(X)) :-
 % Overloading
 tour([Stad-Kleur | Tour]) :- 
     check,
-    % Alle wegen die vanuit stad 1 vertrekken
+    % Alle wegen (met kleuren) die vanuit stad 1 vertrekken
     findall(Stad-Kleur, weg(1,Stad-Kleur), WegenVanuit1),
     length(WegenVanuit1, AantalWegenVanuit1),
     succ(AantalWegenVanuit1Min1, AantalWegenVanuit1),    % minus 1
     % Sorteer de wegen, waarbij de stad met het laagste nummer eerst komt.
     sort(WegenVanuit1, SortedWegenVanuit1),
-    member(Stad-Kleur, SortedWegenVanuit1),
+    member(Stad-Kleur, SortedWegenVanuit1),             % selecteer de steden op volgorde
     % tour(Resterend, Gebruikt, Vervolg)
-    tour(AantalWegenVanuit1Min1, [1-Stad, Stad-1], [Stad-Kleur | Tour]), !.
+    tour(AantalWegenVanuit1Min1, [1-Stad, Stad-1], [Stad-Kleur | Tour]), !. % (1 tour is voldoende -> cut)
 
 % tour(Resterend, Gebruikt, Vervolg)
 % Resterend = aantal nog beschikbare wegen vanuit 1
@@ -136,7 +138,7 @@ tour(Resterend, Gebruikt, [LaatsteStad-LaatsteKleur, Stad-Kleur | Tour]) :-
         weg(LaatsteStad, Stad-Kleur),
         (Resterend > 1 ; Stad \= 1),     % niet te vroeg stoppen
         Kleur \= LaatsteKleur,           % andere kleur dan waarmee werd toegekomen
-        \+ member(LaatsteStad-Kleur,Gebruikt)  
+        \+ member(LaatsteStad-Stad,Gebruikt)  
     ), Routes),
     sort(Routes, SortedRoutes),
     member(Stad-Kleur, SortedRoutes),

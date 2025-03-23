@@ -8,7 +8,8 @@ vertaal([], _, _, _).
 vertaal([gebr(Head) | Tail], L, Counter, SymboolTabel) :-
     (
         member(Counter-Head, SymboolTabel) ->
-        L = [ gebr(Counter) | L ] ;
+        L = [ gebr(Counter) | L ] 
+    ;
         L = [ gebr(_) | L ]
     ),
     vertaal(Tail, L, Counter, SymboolTabel).
