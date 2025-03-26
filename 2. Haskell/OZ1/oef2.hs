@@ -1,7 +1,10 @@
 import System.Posix (DL (Null))
 
+-- ? newtype ? -> vragen aan PDC
 data Name = MkName String
   deriving (Show)
+
+-- afspraak: dataCONSTRUCTOR verschillende naam (e.g. Mk...) van dataTYPE!
 
 myName = MkName "Vincent"
 
@@ -15,9 +18,9 @@ data Pair = MkPair Int Int
 myPair = MkPair 69 420
 
 data Gender = Male | Female | Other
-  deriving (Show, Eq) -- anders geen vergelijkingen
+  deriving (Show, Eq) -- +Eq!! anders geen vergelijkingen
 
-myGender = Male
+myGender = Male -- automatische typeinferentie
 
 data Person = MkPerson Name Int Gender
   deriving (Show)
@@ -34,13 +37,13 @@ myGoodTestResult = Pass 18
 myBodTestResult = Fail ["Didn't study enough"]
 
 stringToGender :: String -> Gender
-stringToGender s
+stringToGender s -- guard:
   | s == "Male" = Male
   | s == "Female" = Female
   | otherwise = Other
 
 genderToString :: Gender -> String
-genderToString g
+genderToString g -- opnieuw een guard:
   | g == Male = "Male"
   | g == Female = "Female"
   | otherwise = "Other"
@@ -56,7 +59,7 @@ grade (Pass g) = g -- grade
 grade (Fail _) = 0 -- zero for fail
 
 {-
-niet Pass of Fail maar passing of failing!!
+!! NIET Pass of Fail maar passing of failing !!
 
 ghci> grade (passing 20)
 20
