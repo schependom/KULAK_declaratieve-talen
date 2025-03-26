@@ -2,4 +2,5 @@
 {- Dit is een comment -}
 
 f (x) = x + 1 -- te veel haakjes
-f x y = x + y -- in orde
+
+g x y = x + y -- in orde

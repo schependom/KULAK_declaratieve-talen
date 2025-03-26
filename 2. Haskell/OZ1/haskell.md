@@ -1,6 +1,24 @@
 # OZ 1
 
-### Introductie
+## Installatie
+
+Installeer GHCup en voeg het toe aan `PATH`:
+
+```bash
+brew install ghcup      # universal installer
+echo 'export PATH="$HOME/.ghcup/bin:$PATH"' > ~/.zshrc
+```
+
+Installeer de Haskell toolstack:
+
+```bash
+ghcup install ghc       # Glasgow Haskell Compiler
+ghuc set ghc
+ghcup install hls       # Haskell Language Server
+ghcup install cabal     # Cabal = package manager
+```
+
+## Introductie
 
 ### GHCi directives
 
@@ -47,15 +65,42 @@ HLint geeft suggesties om codeerstijl te verbeteren in een gegeven file:
 Run dit in de terminal (buiten de GHCi environment):
 
 ```bash
-> hlint first_file.hs
--- Found:
---  (x)
--- Perhaps:
---   x
---
--- 1 hint
+hlint first_file.hs
+# Found:
+#  (x)
+# Perhaps:
+#   x
+#
+# 1 hint
 ```
 
 ## Oefeningen
 
 ### 1. List Operations
+
+```bash
+ghci> :l oef1.hs
+# [1 of 2] Compiling Main             ( oef1.hs, interpreted )
+# Ok, one module loaded.
+ghci> count [1,2,3]
+# 3
+
+ghci> :r
+# [1 of 2] Compiling Main             ( oef1.hs, interpreted ) [Source file changed]
+# Ok, one module loaded.
+ghci> myAnd [True, False]
+# False
+ghci> myAnd [True, True, True]
+# True
+ghci> myAnd []
+# True
+
+ghci> myOr [True, False]
+# True
+ghci> myOr [False, False, False, False]
+# False
+ghci> myOr []
+# False
+```
+
+Enzovoort.
