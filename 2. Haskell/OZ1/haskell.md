@@ -13,7 +13,7 @@ Installeer de Haskell toolstack:
 
 ```bash
 ghcup install ghc       # Glasgow Haskell Compiler
-ghuc set ghc
+ghcup set ghc
 ghcup install hls       # Haskell Language Server
 ghcup install cabal     # Cabal = package manager
 ```
@@ -51,6 +51,9 @@ ghcup install cabal     # Cabal = package manager
 
 -- exit GHCi
 :q
+
+-- multiline
+:{
 ```
 
 ### HLint

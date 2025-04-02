@@ -10,6 +10,18 @@ count :: [Int] -> Int
 count [] = 0
 count (h : t) = 1 + count t
 
+-- met foldr
+--    waarbij foldr f z [x1, x2, x3] = f x1 (f x2 (f x3 z))
+count' :: [Int] -> Int
+count' = foldr f' 0 -- al eta gereduceerd! argument l weggelaten!
+  where
+    f' :: Int -> Int -> Int
+    f' _ acc = acc + 1
+
+-- nog korter, met (eta gereduceerde) ANONIEME FUNCTIE! (\lambda x -> ...) is (\ x -> ...) in Haskell
+count'' :: [Int] -> Int
+count'' = foldr (\_ acc -> acc + 1) 0 -- don't care _ voor eerste argument!
+
 myAnd :: [Bool] -> Bool
 myAnd [] = True
 myAnd (False : tail) = False
@@ -31,6 +43,10 @@ myProduct :: [Integer] -> Integer
 myProduct [] = 1
 -- recursief geval
 myProduct (head : tail) = head * myProduct tail
+
+-- met foldr
+myProduct' :: [Integer] -> Integer
+myProduct' = foldr (*) 1
 
 insert :: Int -> [Int] -> [Int]
 insert getal [] = [getal]
