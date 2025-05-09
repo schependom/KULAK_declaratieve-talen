@@ -70,6 +70,9 @@ partialSums' = go 0 -- init acc op 0
     go _ [] = []
     go acc (x : xs) = (acc + x) : go (acc + x) xs
 
+partialSums'' :: (Num a) => [a] -> [a]
+partialSums'' = tail . scanl (+) 0
+
 {-
     4.2 Moessner's Theorem
 -}

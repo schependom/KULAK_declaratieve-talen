@@ -32,7 +32,7 @@ applyAll (f : fs) x = applyAll fs . f $ x
 --      z = id
 --      f = (.)
 applyAllF :: [a -> a] -> a -> a
-applyAllF l x = foldl (.) id l x
+applyAllF l x = foldl (.) id l x -- !!!
 
 applyTimes :: Int -> (a -> a) -> a -> a
 applyTimes n f = applyAll [f | _ <- [1 .. n]]
@@ -43,7 +43,7 @@ applyTimes n f = applyAll [f | _ <- [1 .. n]]
 -- applyTimes 3 (+1) 0 = applyAll [ (+1), (+1), (+1) ] 0
 
 applyMultipleFuncs :: a -> [a -> b] -> [b]
-applyMultipleFuncs x functies = map ($ x) functies
+applyMultipleFuncs x functies = map ($ x) functies -- !!!
 
 {-
     applyMultipleFuncs 2 [(*2), (*3), (+6)]
@@ -65,9 +65,9 @@ applyMultipleFuncs x functies = map ($ x) functies
 --      positive 5 = True
 
 -- Anderzijds is er ook een LEFT OPERATOR SECTION
---  bv. positive :: Int -> Bool
---      positive = (< 0)
---      positive 5 = False
+--  bv. negative :: Int -> Bool
+--      negative = (0 >)
+--      negative 5 = true
 
 -- Dit is PARTIAL FUNCTION APPLICATION
 

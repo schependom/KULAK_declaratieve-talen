@@ -37,7 +37,7 @@ row' xs = zipWith (+) (0 : xs) (xs ++ [0])
 
 -- met list comprehension
 pascal :: [[Integer]]
-pascal = [1] : [row k | k <- pascal]
+pascal = [1] : [row k | k <- pascal] -- !! lazy evaluation !!
 
 -- met map
 pascal' :: [[Integer]]

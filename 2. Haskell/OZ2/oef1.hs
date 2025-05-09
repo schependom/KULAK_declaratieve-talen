@@ -105,6 +105,6 @@ myMapF :: (a -> b) -> [a] -> [b]
 myMapF g l = foldr f [] l
   where
     -- f :: e -> r -> r
-    f el ba = g el : ba
+    f el acc = g el : acc
 
 -- kan nog gereduceerd worden met eta reduce

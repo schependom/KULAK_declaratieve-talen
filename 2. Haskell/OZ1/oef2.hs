@@ -2,12 +2,12 @@
   2. Algebraic Datatypes = ADTs
 -}
 
--- ? newtype ? -> vragen aan PDC
 data Name = MkName String
   deriving (Show) -- niet vergeten!
 
 -- afspraak: dataCONSTRUCTOR verschillende naam (e.g. Mk...) van dataTYPE!
 
+myName :: Name -- niet MkName!! Want het type is Name
 myName = MkName "Vincent"
 
 ------- SEMANTIEK --------
@@ -22,17 +22,44 @@ data Pair = MkPair Int Int
 -- dataconstructor MkPair
 -- 2 parameters/velden Int Int
 
+myPair :: Pair
 myPair = MkPair 69 420
 
 -- som datatype (unie):
 data Gender = Male | Female | Other
   deriving (Show, Eq) -- +Eq!! anders geen vergelijkingen
 
+data Gender' = Male' | Female' | Other'
+
+-- expliciet (als we bijvoorbeeld geen automatische structurele gelijkheid willen infereren)
+instance Eq Gender' where
+  -- minimale implementatie is (==) of (/=)
+  -- deze twee operatoren zijn elkaars complement
+  (==) Male' Male' = True
+  (==) Female' Female' = True
+  (==) Other' Other' = True
+  (==) _ _ = False
+
 myGender = Male -- automatische typeinferentie
 
 data Person = MkPerson Name Int Gender
-  deriving (Show)
 
+-- custom Show instantie van de klasse Show
+-- waar
+--
+--  class Show a where
+--    show :: a -> String
+--  (Show :: *->*)
+--
+-- het kind van Show is *->* (recursief geval)
+--
+-- is gedefinieerd in de standaard library
+instance Show Person where
+  show :: Person -> String
+  show (MkPerson (MkName n) i g) =
+    "Name: " ++ n ++ ", Age: " ++ show i ++ ", Gender: " ++ show g
+
+myPerson :: Person
 myPerson = MkPerson (MkName "vincent") 19 Male
 
 -- combinatie somtype en producttype:
