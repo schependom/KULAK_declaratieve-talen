@@ -67,7 +67,7 @@ endsInOneOfDigits :: String -> String -> Bool
 endsInOneOfDigits s d = last s `elem` d
 
 {-------------
-findIndex en elemIndex uit Array.List
+findIndex, elemIndex en lookup uit Array.List
 --------------}
 
 -- Char met ''
@@ -86,6 +86,9 @@ rhymes' l1 l2 =
   where
     i1 = fromMaybe 0 $ elemIndex "0" l1 -- ELEM INDEX
     i2 = fromMaybe 0 $ elemIndex "0" l2
+
+valueOf :: [(String, Int)] -> String -> Int
+valueOf lijst s = fromJust (lookup s lijst)
 
 {-------------
 all & alle paren genereren van een lijst adhv list comprehensions
