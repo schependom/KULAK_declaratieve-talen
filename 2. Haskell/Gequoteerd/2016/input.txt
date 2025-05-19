@@ -1,7 +1,0 @@
-PROGRAM P-R-OW1-G-R-AE2-M N programs
-PALEONTOLOGIST P-EY2-L-IY0-AH0-N-T-AA1-L-AH0-JH-IH0-S-T N paleontologists
-WHALE W-EY1-L V whaled whaling whales
-FRAIL F-R-EY1-L A frailer frailest
-ALE EY1-L N ales
-ASSAIL AH0-S-EY1-L V assailed assailing assails
-PALE P-EY1-L A paler palest
