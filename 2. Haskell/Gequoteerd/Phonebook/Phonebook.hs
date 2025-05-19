@@ -196,9 +196,18 @@ instance Index Lookup where
   empty = MkLookup (\_ -> Nothing)
 
   singleton :: (Eq k) => k -> Entry -> Lookup k
-  singleton k_entry entry = MkLookup (\k_lookup -> if k_lookup == k_entry then Just entry else Nothing)
+  singleton k_entry entry =
+    MkLookup
+      ( \k_lookup ->
+          if k_lookup == k_entry
+            then Just entry
+            else Nothing
+      )
 
   (<+>) :: (Eq k) => Lookup k -> Lookup k -> Lookup k
-  (<+>) (MkLookup f1) (MkLookup f2) = MkLookup (\k -> case f1 k of
-                                                          Just e -> Just e
-                                                          Nothing -> f2 k)
+  (<+>) (MkLookup f1) (MkLookup f2) =
+    MkLookup
+      ( \k -> case f1 k of
+          Just e -> Just e
+          Nothing -> f2 k
+      )
