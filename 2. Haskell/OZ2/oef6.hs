@@ -3,7 +3,7 @@
 -}
 
 row :: [Integer] -> [Integer]
-row (x : xs) = go 0 (x : xs) -- hou de vorige bij (in het begin 0)
+row vorigeRij = go 0 vorigeRij -- hou de vorige bij (in het begin 0)
   where
     go vorig [] = [vorig] -- einde bereikt
     go vorig (x : xs) = (vorig + x) : go x xs
@@ -34,6 +34,15 @@ row' xs = zipWith (+) (0 : xs) (xs ++ [0])
     ghci> row $ row [1,2,1]
         [1,4,6,4,1]
 -}
+
+-- nog een alternatief met zipWith (modeloplossing)
+-- !!
+-- ghci> zipWith (+) [1,3,3,1] [3,3,1] --!! verschillende lengtes
+--          [4,6,4]
+
+row'' :: [Integer] -> [Integer]
+row'' [] = [1]
+row'' (r : rs) = (1 : zipWith (+) (r : rs) rs) ++ [1]
 
 -- met list comprehension
 pascal :: [[Integer]]

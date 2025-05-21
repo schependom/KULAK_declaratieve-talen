@@ -1,19 +1,21 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 {-# HLINT ignore "Use intercalate" #-}
-import Data.List
+import Data.List -- intersperse
 
 {-
     5. Bomen die gezien mogen worden (EXTRA)
 -}
 
 {-
-    INTERSPERSE:
+    !! INTERSPERSE:
 
     ghci> intersperse "\n" ["dit is een lijn", "dit is nog een lijn"]
     ["dit is een lijn","\n","dit is nog een lijn"]
 
     IN COMBINATIE MET CONCAT:
+
+    !! concat $ intersperse
 
     ghci> concat (intersperse "\n" ["dit is een lijn", "dit is nog een lijn"])
     "dit is een lijn\ndit is nog een lijn"

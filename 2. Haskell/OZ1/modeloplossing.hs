@@ -4,16 +4,17 @@
   daaruit kan leren. Dit bereidt al voor op wat
   nog komt.
 -}
+
 -- | 1 List Operations
+
 {-
   Schrijf een functie mnteller::[Int] -> Int
   die het aantal elementen in een lijst telt
 -}
 
-mnteller::[a] -> Int
+mnteller :: [a] -> Int
 mnteller [] = 0
-mnteller (x:xs) = 1 + mnteller xs
-
+mnteller (x : xs) = 1 + mnteller xs
 
 {-
    Schrijf een functie myAnd::[Bool] -> Bool
@@ -23,9 +24,9 @@ mnteller (x:xs) = 1 + mnteller xs
    geval
 -}
 
-myAnd::[Bool] -> Bool
+myAnd :: [Bool] -> Bool
 myAnd [] = True
-myAnd (x:xs) = x && myAnd xs
+myAnd (x : xs) = x && myAnd xs
 
 {-
    Schrijf een functi myOr::[Bool] -> Bool
@@ -35,19 +36,19 @@ myAnd (x:xs) = x && myAnd xs
    geval
 -}
 
-myOr::[Bool] -> Bool
+myOr :: [Bool] -> Bool
 myOr [] = False
-myOr (x:xs) = x || myOr xs
+myOr (x : xs) = x || myOr xs
 
 {-
    Schrijf een functie myAppend::[Int] -> [Int] -> Int
    die twee lijsten als input neemt en
    hun concatenatie berekent
 -}
-myAppend::[Int] -> [Int] -> [Int]
+myAppend :: [Int] -> [Int] -> [Int]
 myAppend x [] = x
 myAppend [] x = x
-myAppend (x:xs) y = x:myAppend xs y
+myAppend (x : xs) y = x : myAppend xs y
 
 {-
    Schrijf een functie myProduct::[Integer] -> Integer
@@ -55,22 +56,22 @@ myAppend (x:xs) y = x:myAppend xs y
    het product van de elementen in de lijst
    berekent
 -}
-myProduct:: [Int] -> Int
+myProduct :: [Int] -> Int
 myProduct [] = 1
-myProduct (x:xs) = x*myProduct xs
+myProduct (x : xs) = x * myProduct xs
 
 {-
    Schrijf een functie myInsert::Int -> [Int] -> Int
    die een Int en een lijst van Int als input neemt en
    en die de Int invoegt in de lijst op de eerste plaats
-   waar het kleiner dan of gelijk is aan het volgende 
+   waar het kleiner dan of gelijk is aan het volgende
    element
 -}
-myInsert::Int -> [Int] -> [Int]
+myInsert :: Int -> [Int] -> [Int]
 myInsert x [] = [x]
-myInsert x (xe:xs)
-  | x > xe = xe:myInsert x xs
-  | otherwise = x:xe:xs 
+myInsert x (xe : xs)
+  | x > xe = xe : myInsert x xs
+  | otherwise = x : xe : xs
 
 -- | 2 Abstract Data Types
 
@@ -78,17 +79,21 @@ myInsert x (xe:xs)
   2.1 Name, Pair, Gender, Person, TestResult
 -}
 data Name = String
-  deriving Show
-data Pair = P (Int, Int)
-  deriving Show
-data Gender = Male|Female|Other
   deriving (Show)
+
+data Pair = P (Int, Int)
+  deriving (Show)
+
+data Gender = Male | Female | Other
+  deriving (Show)
+
 data Person = Pn Name Int Gender
-  deriving Show
-data TestResult =
-  Pass Int 
+  deriving (Show)
+
+data TestResult
+  = Pass Int
   | Fail [String]
-  deriving Show
+  deriving (Show)
 
 {-
   2.1
@@ -97,15 +102,15 @@ data TestResult =
 
   zet een Gender om in een String en omgekeerd
 -}
-genderToString::Gender -> String
-genderToString Male    = "male"
-genderToString Female  = "female"
-genderToString Other   = "other"
+genderToString :: Gender -> String
+genderToString Male = "male"
+genderToString Female = "female"
+genderToString Other = "other"
 
-stringToGender::String -> Gender
-stringToGender "male"     = Male
-stringToGender "female"   = Female
-stringToGender _          = Other
+stringToGender :: String -> Gender
+stringToGender "male" = Male
+stringToGender "female" = Female
+stringToGender _ = Other
 
 {-
   passing::Int -> TestResult -> Int
@@ -113,7 +118,7 @@ stringToGender _          = Other
   Creeer een passing resultaat met de
   gegeven graad
 -}
-passing::Int -> TestResult
+passing :: Int -> TestResult
 passing = Pass
 
 {-
@@ -122,8 +127,8 @@ passing = Pass
   Creeer een failing resultaat met de
   gegeven commentaren
 -}
-failing::[String] -> TestResult
-failing = Fail 
+failing :: [String] -> TestResult
+failing = Fail
 
 {-
   grade::TestResult -> Int
@@ -131,7 +136,7 @@ failing = Fail
   Geef de graad van het resultaat terug
   Een fail leidt tot een resultaat 0
 -}
-grade::TestResult -> Int
+grade :: TestResult -> Int
 grade (Pass x) = x
 grade (Fail _) = 0
 
@@ -141,7 +146,7 @@ grade (Fail _) = 0
   Geef de commentaren bij een resultaat terug
   Een passing resultaat leidt tot geen commentaar
 -}
-comments::TestResult -> [String]
+comments :: TestResult -> [String]
 comments (Pass _) = []
 comments (Fail comms) = comms
 
@@ -159,7 +164,7 @@ data Move = Rock | Paper | Scissors
   Voor een Move zet is 'beat zet' de zet die
   de gegeven zet verslaat
 -}
-beat::Move -> Move
+beat :: Move -> Move
 beat Rock = Paper
 beat Paper = Scissors
 beat Scissors = Rock
@@ -170,7 +175,7 @@ beat Scissors = Rock
   Voor een Move zet is 'lose zet' de zet die
   van de gegeven zet verliest
 -}
-lose::Move -> Move
+lose :: Move -> Move
 lose Rock = Scissors
 lose Paper = Rock
 lose Scissors = Paper
@@ -183,10 +188,10 @@ data Result = Win | Lose | Draw
 
 {-
   outcome::Move->Move->Result
- 
+
   Het resultaat van 1 gevecht
 -}
-outcome::Move->Move->Result
+outcome :: Move -> Move -> Result
 outcome m1 m2
   | beat m1 == m2 = Lose
   | beat m2 == m1 = Win
@@ -201,15 +206,17 @@ outcome m1 m2
   Als n < 0, dan is het resultaat 1
 -}
 -- Gebruik makend van de ingebouwde functie product
-facproduct::Integer -> Integer
-facproduct n = product [1..n]
+facproduct :: Integer -> Integer
+facproduct n = product [1 .. n]
+
 -- Gebruik makend van de ingebouwde functie foldl
-facfoldl::Integer -> Integer
-facfoldl n = foldl (*) 1 [1..n]
+facfoldl :: Integer -> Integer
+facfoldl n = foldl (*) 1 [1 .. n]
+
 -- Gebruik makend van recursie en patternmatching
-facrecursie::Integer -> Integer
+facrecursie :: Integer -> Integer
 facrecursie n
-  | n <= 0    = 1
+  | n <= 0 = 1
   | otherwise = n * facrecursie (n - 1)
 
 {-
@@ -218,8 +225,8 @@ facrecursie n
   'myRepeat n x' is een lijst van n keer
   de waarde x
 -}
-myRepeat::Int -> Int -> [Int]
-myRepeat n x = [x| _ <- [1..n]]
+myRepeat :: Int -> Int -> [Int]
+myRepeat n x = [x | _ <- [1 .. n]]
 
 {-
   flatten::[[Int]] -> [Int]
@@ -227,8 +234,8 @@ myRepeat n x = [x| _ <- [1..n]]
   flatten zet een lijst van lijsten om in
   de lijst van waarden in die lijsten
 -}
-flatten::[[Int]] -> [Int]
-flatten l = [x|sl <- l, x <- sl]
+flatten :: [[Int]] -> [Int]
+flatten l = [x | sl <- l, x <- sl]
 
 {-
 
@@ -238,13 +245,14 @@ flatten l = [x|sl <- l, x <- sl]
   de gehele getallen x zodat b <= x <= t
 -}
 -- gebruik makend van de operator (..)
-range::Int -> Int -> [Int]
-range b t = [b..t]
+range :: Int -> Int -> [Int]
+range b t = [b .. t]
+
 -- gebruik makend van recursie
-rangerecursie::Int -> Int -> [Int]
+rangerecursie :: Int -> Int -> [Int]
 rangerecursie b t
   | t < b = []
-  | otherwise = b:rangerecursie (b+1) t
+  | otherwise = b : rangerecursie (b + 1) t
 
 {-
   removeMultiples::Int -> [Int] -> [Int]
@@ -253,8 +261,8 @@ rangerecursie b t
   waaruit alle veelvouden van waarde
   verwijderd zijn
 -}
-removeMultiples::Int -> [Int] -> [Int]
-removeMultiples g l = [x|x <- l,x `mod` g /= 0]
+removeMultiples :: Int -> [Int] -> [Int]
+removeMultiples g l = [x | x <- l, x `mod` g /= 0]
 
 {-
 5 Extra: Arithmetics
@@ -263,7 +271,8 @@ removeMultiples g l = [x|x <- l,x `mod` g /= 0]
 {-
   Een uitdrukking wordt voorgesteld door het ADT Exp
 -}
-data Exp = Const Int
+data Exp
+  = Const Int
   | Add Exp Exp
   | Sub Exp Exp
   | Mul Exp Exp
@@ -272,10 +281,10 @@ data Exp = Const Int
 {-
   eval::Exp -> Int
 
-  'eval' is een Interpreter. Deze evalueert een uitdrukking 
+  'eval' is een Interpreter. Deze evalueert een uitdrukking
   zoals ze werd voorgesteld in de parameter
 -}
-eval::Exp -> Int
+eval :: Exp -> Int
 eval (Const x) = x
 eval (Add e1 e2) = eval e1 + eval e2
 eval (Sub e1 e2) = eval e1 - eval e2
@@ -288,28 +297,30 @@ eval (Mul e1 e2) = eval e1 * eval e2
 -}
 data Inst = IPush Int | IAdd | ISub | IMul
   deriving (Show, Eq)
+
 -- Een programma
 type Prog = [Inst]
+
 -- Een stapel
 type Stack = [Int]
 
 -- Voer een instructie uit op een stapel
 execute :: Inst -> Stack -> Stack
-execute (IPush x) s = x:s
-execute IAdd (x1:x2:xs) = (x1 + x2):xs
-execute ISub (x1:x2:xs) = (x1 - x2):xs
-execute IMul (x1:x2:xs) = (x1 * x2):xs
-execute _ _ = runtimeError 
+execute (IPush x) s = x : s
+execute IAdd (x1 : x2 : xs) = (x1 + x2) : xs
+execute ISub (x1 : x2 : xs) = (x1 - x2) : xs
+execute IMul (x1 : x2 : xs) = (x1 * x2) : xs
+execute _ _ = runtimeError
 
 -- Voer een programma uit op een stapel
 -- (iteratie van instructies)
-run::Prog -> Stack -> Stack
+run :: Prog -> Stack -> Stack
 run [] s = s
-run (inst:ps) s  = run ps (execute inst s)
+run (inst : ps) s = run ps (execute inst s)
 
 -- Zet een uitdrukking om in een programma
 compile :: Exp -> Prog
-compile (Const x)  = [IPush x]
+compile (Const x) = [IPush x]
 compile (Add e1 e2) = compile e2 ++ compile e1 ++ [IAdd]
 compile (Sub e1 e2) = compile e2 ++ compile e1 ++ [ISub]
 compile (Mul e1 e2) = compile e2 ++ compile e1 ++ [IMul]
@@ -327,9 +338,9 @@ runtimeError = error "Runtime error."
   'sumf lijst' is de som van de gegeven lijst
    van reele getallen
 -}
-sumf::[Float] -> Float
+sumf :: [Float] -> Float
 sumf [] = 0
-sumf (x:xs) = x + sumf xs
+sumf (x : xs) = x + sumf xs
 
 {-
   prodf::[Double] -> Double
@@ -338,17 +349,18 @@ sumf (x:xs) = x + sumf xs
    van reele getallen
 -}
 -- Experimenteer zelf met Float.
-prodf::[Double] -> Double
+prodf :: [Double] -> Double
 prodf [] = 1
-prodf (x:xs) = x * prodf xs
+prodf (x : xs) = x * prodf xs
 
 -- Bereken pi met de eerste benaderingsformule
-piSum::Float -> Float
-piSum n = 8*sumf [1/(4*x+1)/(4*x+3)|x <- takeWhile (<=n) [0..]]
+piSum :: Float -> Float
+piSum n = 8 * sumf [1 / (4 * x + 1) / (4 * x + 3) | x <- takeWhile (<= n) [0 ..]]
 
 -- Bereken pi met de tweede benaderingsformule
-piProd::Double -> Double
-piProd n = 4*prodf [(2*x + 2)*(2*x+4)/((2*x+3)**2)|x <- takeWhile (<=n) [0..]]
+piProd :: Double -> Double
+piProd n = 4 * prodf [(2 * x + 2) * (2 * x + 4) / ((2 * x + 3) ** 2) | x <- takeWhile (<= n) [0 ..]]
+
 {-
 Prime numbers
 -}
@@ -358,16 +370,17 @@ Prime numbers
 
   De zeef van eratosthenes op basis van removeMultiples
 -}
-sieve::Int->[Int] -> [Int]
+sieve :: Int -> [Int] -> [Int]
 sieve top [] = []
-sieve top (x:xs)
-  | x*x > top   = x:xs -- Dit is onze versie van 'x > sqrt(top)
-  | otherwise    = x:sieve top (removeMultiples x xs)
+sieve top (x : xs)
+  | x * x > top = x : xs -- Dit is onze versie van 'x > sqrt(top)
+  | otherwise = x : sieve top (removeMultiples x xs)
 
-primes::Int -> [Int]
-primes top = sieve top [2..top]
+primes :: Int -> [Int]
+primes top = sieve top [2 .. top]
 
 -- | Extraatje: factorisatie van positieve gehele getallen
+
 {-
   factorenLijst::Int -> [Int] -> [Int]
 
@@ -377,19 +390,27 @@ primes top = sieve top [2..top]
   waarbij een priemfactor even vaak voorkomt als het aantal
   keer dat hij x deelt
 -}
-factorenLijst::Int -> [Int] -> [Int]
+factorenLijst :: Int -> [Int] -> [Int]
 factorenLijst 1 _ = [] -- wat is het belang van deze lijn?
 factorenLijst _ [] = []
-factorenLijst x (y:list)
-  | rem x y  == 0    = y:factorenLijst (div x y) (y:list)
-  | otherwise        = factorenLijst x list
+factorenLijst x (y : list)
+  | rem x y == 0 = y : factorenLijst (div x y) (y : list)
+  | otherwise = factorenLijst x list
+
+-- primes 12 = [2, 3, 5, 7, 11]
+--
+-- factorenLijst 12 [2, 3, 5, 7, 11]            12/2 = 6
+-- = 2 : factorenLijst 6 [2, 3, 5, 7, 11]       6/2 = 3
+-- = 2 : 2 : factorenLijst 3 [2, 3, 5, 7, 11]   2/3 \notin \N
+-- = 2 : 2 : factorenLijst 3 [3, 5, 7, 11]      3/3 = 1
+-- = 2 : 2 : 3 : factorenLijst 1 [3, 5, 7, 11]  basisgeval
 
 {-
   factoren::Int -> [Int]
 
- 'factoren x' is de lijst van priemdelers van x  
+ 'factoren x' is de lijst van priemdelers van x
 -}
-factoren::Int -> [Int]
+factoren :: Int -> [Int]
 factoren x = factorenLijst x (primes x)
 
 {-

@@ -1,8 +1,12 @@
 -- voor readMaybe
 
+import Data.Foldable
 import Data.List
 import Data.Maybe
 import Text.Read
+
+-- elemIndex
+-- minimum
 
 {-------------
 EERSTE GETAL DAT AAN VOORWAARDE VOLDOET
@@ -52,6 +56,8 @@ progIO' = do
     Just int -> do
       putStrLn "Dit is je getal plus een:"
       print (succ int)
+  putStrLn "Kunnen we hier verder gaan?"
+  putStrLn "Jazeker!"
 
 {-------------
 x `elem` l checkt of x een element is van de lijst (of string!) l!!
@@ -129,3 +135,46 @@ run' = do
 
       putStrLn "\nHere are some sentences you can make using these words:"
       mapM_ putStrLn (take 10 (makeSentence rhymingWords))
+
+{-------------
+LIST COMPREHENSIONS
+--------------}
+
+flatten :: [[Int]] -> [Int]
+flatten l = [x | sl <- l, x <- sl]
+
+kleinerDanN :: Int -> [Int]
+kleinerDanN n = [x ^ 2 | x <- takeWhile (< n) [0 ..]]
+
+{-------------
+Expliciete ERROR HANDLING
+--------------}
+
+-- exceptions
+-- voor bijvoorbeeld stack overflow
+runtimeError :: Stack -- !!
+runtimeError = error "Runtime error."
+
+execute :: Inst -> Stack -> Stack
+execute (IPush x) s = x : s
+execute IAdd (x1 : x2 : xs) = (x1 + x2) : xs
+execute ISub (x1 : x2 : xs) = (x1 - x2) : xs
+execute IMul (x1 : x2 : xs) = (x1 * x2) : xs
+execute _ _ = runtimeError
+
+{-------------
+GGD
+--------------}
+
+ggd :: Int -> Int -> Int
+ggd x y
+  | x == y = x
+  | x < y = ggd y x
+  | otherwise = ggd y (x - y) -- x > y
+
+{-------------
+partial sums
+--------------}
+
+partialSums :: (Num a) => [a] -> [a]
+partialSums = myFoldr (\a r -> a : map (+ a) r) [] -- !!

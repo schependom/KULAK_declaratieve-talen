@@ -39,4 +39,6 @@ menu l init = do
   listItems l
   putStr "==> "
   i <- readLn -- readLn is hetzelfde als eerst getLine (:: IO String) en daarna read (String -> a) op gebinde waarde
-  snd (l !! (i - 1)) init -- pas de (a -> IO a) functie toe (0-based indexing!) op de initiele waarde
+  snd (l !! (i - 1)) init -- pas de (a -> IO a) functie toe op de initiele waarde
+
+-- !!(0-based indexing!)

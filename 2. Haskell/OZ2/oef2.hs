@@ -32,18 +32,26 @@ applyAll (f : fs) x = applyAll fs . f $ x
 --      z = id
 --      f = (.)
 applyAllF :: [a -> a] -> a -> a
-applyAllF l x = foldl (.) id l x -- !!!
+applyAllF = foldr (.) id -- !!!
+
+{-
+ghci> applyAllF [\x -> x^2, \x -> x+1] 1
+4
+-}
 
 applyTimes :: Int -> (a -> a) -> a -> a
 applyTimes n f = applyAll [f | _ <- [1 .. n]]
 
 -- dit is een eta gereduceerde versie van
 --      applyTimes n f x = applyAll [ f | _ <- [1..n] ] x
--- merk op dat [1..0] = []!!
+-- !! [1..0] = [] !!
 -- applyTimes 3 (+1) 0 = applyAll [ (+1), (+1), (+1) ] 0
 
 applyMultipleFuncs :: a -> [a -> b] -> [b]
 applyMultipleFuncs x functies = map ($ x) functies -- !!!
+
+applyMultipleFuncs' :: a -> [a -> b] -> [b]
+applyMultipleFuncs' x functies = [f x | f <- functies]
 
 {-
     applyMultipleFuncs 2 [(*2), (*3), (+6)]
@@ -64,7 +72,9 @@ applyMultipleFuncs x functies = map ($ x) functies -- !!!
 --      positive = (> 0)
 --      positive 5 = True
 
--- Anderzijds is er ook een LEFT OPERATOR SECTION
+-- (0 >) Anderzijds is er ook een LEFT OPERATOR SECTION
+--      -> We geven het linkerargument mee
+--
 --  bv. negative :: Int -> Bool
 --      negative = (0 >)
 --      negative 5 = true

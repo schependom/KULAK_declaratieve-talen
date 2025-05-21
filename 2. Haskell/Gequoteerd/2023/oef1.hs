@@ -17,7 +17,7 @@ erover'' :: [Integer] -> Integer -> Integer
 erover'' (x : xs) n = go 0 -- begin bij index 0
   where
     go acc
-      | acc > x = x
+      | acc > x = acc
       | otherwise = go $ succ acc
 
 -- modeloplossing: zonder accumulator

@@ -37,7 +37,7 @@ prog1'' :: IO ()
 prog1'' = do
   m <- readLn -- Int
   nS <- getLine -- String
-  replicateM_ m (putStrLn nS) -- replicateM waarbij resultaat gediscard wordt
+  replicateM_ m (putStrLn nS) -- !! replicateM waarbij resultaat gediscard wordt
 
 prog1''' :: IO ()
 prog1''' =
@@ -68,7 +68,7 @@ zet' left x =
     else print x >> zet' (left - 1) x -- resultaat moet niet doorgespeeld worden
 
 zet'' :: Int -> String -> IO ()
-zet'' m n = replicateM_ m (putStrLn n) -- discard het resultaat
+zet'' m n = replicateM_ m (putStrLn n) -- !! _ wil zeggen: discard het resultaat
 
 zet''' :: Int -> String -> IO ()
 zet''' m n = sequence_ $ replicate m (putStrLn n) -- explicieter

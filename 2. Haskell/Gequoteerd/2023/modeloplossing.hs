@@ -29,7 +29,7 @@ erover_f :: (Ord a) => (Int -> a) -> Int -> a -> Int
 erover_f f van grens = go van
   where
     go s
-      | (f s) > grens = s
+      | f s > grens = s
       | otherwise = go (s + 1)
 
 {-

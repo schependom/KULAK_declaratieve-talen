@@ -7,7 +7,7 @@ tekenBord :: Int -> Int -> [String] -> IO ()
 tekenBord h b lijnen = do
   -- TEKEN HET BORD
   tekenHor b
-  mapM_ putStrLn lijnen
+  mapM_ putStrLn lijnen -- !! mapM_ !!
   tekenHor b
   -- VRAAG INPUT
   putStrLn "Tekenen (j/n)?"
@@ -22,18 +22,6 @@ tekenBord h b lijnen = do
     else do
       putStrLn "Bye"
       return ()
-
-tekenBord' :: [String] -> Int -> IO ()
-tekenBord' l b = do
-  tekenHor b
-  go l
-  tekenHor b
-  where
-    go :: [String] -> IO ()
-    go [] = return ()
-    go (x : xs) = do
-      putStrLn x
-      go xs
 
 -- return een getal tussen de grenzen [onder, boven]
 haalGetal :: String -> Int -> Int -> IO Int
@@ -50,6 +38,17 @@ haalGetal s onder boven = do
           let Just getal = getalM
            in return getal
 
+haalGetal' :: String -> Int -> Int -> IO Int
+haalGetal' s onder boven = do
+  putStrLn s -- prompt
+  putStr "-> "
+  s <- getLine -- input user
+  case readMaybe s of -- !! [case readMaybe ... of ...]
+    Nothing -> do
+      putStrLn "Error! Geef een geldig getal binnen de grenzen in!"
+      haalGetal' s onder boven -- probeer opnieuw
+    Just getal -> return getal
+
 -- krijgt een valid input
 zetPunt :: Int -> Int -> [String] -> [String]
 zetPunt x y l =
@@ -61,4 +60,8 @@ zetPunt x y l =
 teken :: Int -> Int -> IO ()
 teken h b = do
   -- teken het initiële bord
+  -- roep tekenBord aan met h lijnen van b keer " "
+  --
+  -- waarbij replicate n == take n $ repeat
+  -- want repeat geeft een oneindige lijst
   tekenBord h b (replicate h (concat $ replicate b " "))

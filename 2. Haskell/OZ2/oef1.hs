@@ -35,6 +35,10 @@ myFoldl :: (r -> e -> r) -> r -> [e] -> r
 myFoldl _ acc [] = acc
 myFoldl f acc (x : xs) = myFoldl f (f acc x) xs
 
+myFoldl' :: (b -> a -> b) -> b -> [a] -> b
+myFoldl' f e [] = e
+myFoldl' f e (x : xs) = myFoldl f (e `f` x) xs -- !!
+
 {-
     foldl (+) 0 [1,2,3]
         foldl (+) (0+1) [2,3]
@@ -50,6 +54,10 @@ myFoldl f acc (x : xs) = myFoldl f (f acc x) xs
 myFoldr :: (e -> r -> r) -> r -> [e] -> r
 myFoldr _ acc [] = acc
 myFoldr f acc (x : xs) = f x (myFoldr f acc xs)
+
+myFoldr' :: (a -> b -> b) -> b -> [a] -> b
+myFoldr' f e [] = e
+myFoldr' f e (x : xs) = x `f` myFoldr f e xs
 
 {-
     foldr (+) 0 [1,2,3]

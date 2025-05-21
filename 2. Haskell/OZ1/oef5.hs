@@ -60,9 +60,7 @@ execute (IPush i) s = i : s
 execute IAdd (x1 : x2 : xs) = (x1 + x2) : xs
 execute ISub (x1 : x2 : xs) = (x2 - x1) : xs -- !!
 execute IMul (x1 : x2 : xs) = (x1 * x2) : xs
-execute IAdd [x1] = runtimeError
-execute ISub [x1] = runtimeError
-execute IMul [x1] = runtimeError
+execute _ _ = runtimeError
 
 -- heel programma (lijst van Inst) runnen gegeven een initiele stack (lijst van Int)
 run :: Prog -> Stack -> Stack

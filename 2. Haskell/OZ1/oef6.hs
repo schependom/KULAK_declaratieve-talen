@@ -24,7 +24,10 @@ productf' = foldl (*) 1
 -- approximation 1
 -- assuming that n is a natural (floating) number
 piSum :: Float -> Float
-piSum n = sumf [8 / ((4 * x + 1) * (4 * x + 3)) | x <- [0.0 .. n]]
+piSum n = sumf [8 / ((4 * x + 1) * (4 * x + 3)) | x <- [0.0 .. n]] -- kan ook met takeWhile (< n) [0 ..]
+
+piSum' :: Float -> Float
+piSum' n = sumf [8 / ((4 * x + 1) * (4 * x + 3)) | x <- takeWhile (< n) [0 ..]]
 
 -- approximation 2
 piProd :: Float -> Float

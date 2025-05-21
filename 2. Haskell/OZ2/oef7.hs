@@ -2,7 +2,6 @@ import Control.Monad
 import Data.Char
 import Data.List
 import Data.Maybe
-import Distribution.Simple (fromVersionIntervals)
 import GHC.Base
 
 {-

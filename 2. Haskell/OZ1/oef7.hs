@@ -17,5 +17,21 @@ sieve n = verwijderVeelvouden [2 .. n]
     verwijderVeelvouden :: [Int] -> [Int]
     verwijderVeelvouden [] = error "Wordt niet gebruikt."
     verwijderVeelvouden (x : xs)
-      | x > floorMono (sqrtMono $ i2d n) = x : xs -- !!
+      | x > floorMono (sqrtMono $ i2d n) = x : xs
       | otherwise = x : verwijderVeelvouden (filter (\e -> e `mod` x /= 0) xs)
+
+sieve' :: Int -> [Int]
+sieve' n = verwijderVeelvouden [2 .. n]
+  where
+    verwijderVeelvouden :: [Int] -> [Int]
+    verwijderVeelvouden [] = error "Wordt niet gebruikt."
+    verwijderVeelvouden (x : xs)
+      | x * x > n = x : xs -- stop als sqrt(x) > n
+      | otherwise = x : verwijderVeelvouden (filter (\e -> e `mod` x /= 0) xs)
+
+primes :: [Int]
+primes = verwijderVeelvouden [2 ..]
+  where
+    verwijderVeelvouden :: [Int] -> [Int]
+    verwijderVeelvouden [] = error "Wordt niet gebruikt."
+    verwijderVeelvouden (x : xs) = x : verwijderVeelvouden (filter (\e -> e `mod` x /= 0) xs)
