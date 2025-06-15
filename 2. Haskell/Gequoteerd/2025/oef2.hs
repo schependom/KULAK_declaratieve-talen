@@ -9,6 +9,17 @@ vanDyck n =
       -- ... om zo een nieuwe string te krijgen van lengte 2 + 2k + 2(n-1-k) = 2n
   ]
 
+vanDyck' :: Int -> [String]
+vanDyck' n
+  | n == 0 = [""]
+  | otherwise =
+      [ '(' : kleiner ++ ')' : rest
+        | k <- [1 .. n],
+          kleiner <- vanDyck' (n - k), -- lengte 2(n-k) = 2n - 2k
+          rest <- vanDyck' (k - 1) -- lengte 2(k-1) = 2k - 2
+          -- in totaal 2 (haakjes rond kleiner) + 2n - 2k + 2k - 2 = 2n
+      ]
+
 -- 2.
 -- oneindige rij
 allVanDyck :: [[String]]
