@@ -1,33 +1,59 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% VOORBEELD ZOEKPROBLEEM %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+connection(london, paris).
+connection(london, dublin).
+connection(paris, rome).
+connection(paris, berlin).
+connection(rome, athens).
+connection(berlin, warsaw).
+connection(dublin, edinburgh).
+connection(edinburgh, london).
+
+get_edges(Edges) :-
+    findall((S1, S2), connection(S1, S2), Edges).
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+%%% DIEPTE-EERST %%%
+%%%%%%%%%%%%%%%%%%%%
+
 %% Dfs(+StartNode, +EndNode, +Edges, -Paths)
 % Vindt een pad van StartNode naar GoalNode gebruikmakend van Depth-First Search.
 % Paths is de output en is een lijst van lijsten van knopen van StartNode naar GoalNode.
 % Edges is een lijst van (niet-)gerichte bogen, voorgesteld als een lijst van tupels, bv. [(a,b), (b,c)].
 
 % Edges is een lijst van GERICHTE!! bogen
-dfsDirected(Start, Goal, Edges, [Start | Path]) :- dfsRecursiveDirected(Start, Goal, Edges, [], Path).
+dfsDirectioned(Start, Goal, Edges, [Start | Path]) :- dfsRecursiveDirectioned(Start, Goal, Edges, [], Path).
 % Edges is een lijst van NIET-GERICHTE!! bogen.
-dfsUndirected(Start, Goal, Edges, [Start | Path]) :- dfsRecursiveUndirected(Start, Goal, Edges, [], Path).
+dfsUndirectioned(Start, Goal, Edges, [Start | Path]) :- dfsRecursiveUndirectioned(Start, Goal, Edges, [], Path).
+
 
 % Basisgeval
-dfsRecursiveDirected(Goal, Goal, _, Visited, Result) :- 
+dfsRecursiveDirectioned(Goal, Goal, _, Visited, Result) :- 
   Visited \= [], % als we een loop zoeken, dan is Start==Begin en Visited==[Goal]
   reverse(Visited, Result).
 
 % Recursief geval
-dfsRecursiveDirected(Current, Goal, Edges, Visited, Path) :-
+dfsRecursiveDirectioned(Current, Goal, Edges, Visited, Path) :-
   member((Current, Next), Edges), % kies een volgende knoop
   (
     \+ member(Next, Visited)
   ), % volgende knoop is ofwel het eind, ofwel nog niet bezocht
-  dfsRecursiveDirected(Next, Goal, Edges, [Next | Visited], Path).
+  dfsRecursiveDirectioned(Next, Goal, Edges, [Next | Visited], Path).
+
 
 % Basisgeval
-dfsRecursiveUndirected(Goal, Goal, _, Visited, Result) :- 
+dfsRecursiveUndirectioned(Goal, Goal, _, Visited, Result) :- 
   Visited \= [], % als we een loop zoeken, dan is Start==Begin en Visited==[Goal]
   reverse(Visited, Result).
 
 % Recursief geval
-dfsRecursiveUndirected(Current, Goal, Edges, Visited, Path) :-
+dfsRecursiveUndirectioned(Current, Goal, Edges, Visited, Path) :-
   (
     member((Current, Next), Edges)
       ;
@@ -36,31 +62,12 @@ dfsRecursiveUndirected(Current, Goal, Edges, Visited, Path) :-
   (
     \+ member(Next, Visited)
   ),
-  dfsRecursiveUndirected(Next, Goal, Edges, [Next | Visited], Path).
+  dfsRecursiveUndirectioned(Next, Goal, Edges, [Next | Visited], Path).
 
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%% VOORBEELD ZOEKPROBLEEM
-
-% Define the city connections as facts (undirected for simplicity)
-connection(london, paris).
-connection(london, dublin).
-connection(paris, rome).
-connection(paris, berlin).
-connection(rome, athens).
-connection(berlin, warsaw).
-connection(dublin, edinburgh).
-connection(edinburgh, london). % A cycle!
-
-% Helper to get all edges for the graph predicates
-get_edges(Edges) :-
-    findall((C1, C2), connection(C1, C2), Edges).
 
 /*
 
-?- get_edges(Edges), dfsUndirected(london, athens, Edges, Path).
+?- get_edges(Edges), dfsUndirectioned(london, athens, Edges, Path).
 
     Edges = [(london, paris), (london, dublin), (paris, rome), (paris, berlin), (rome, athens), (berlin, warsaw), (dublin, edinburgh), (edinburgh, london)],
     Path = [london, paris, rome, athens] ;
@@ -80,36 +87,42 @@ get_edges(Edges) :-
 */
 
 
-
-% Entry point for directed DFS, finds all possible paths.
-% Paths might contain duplicates if different traversal sequences lead to the same node sequence.
-dfsAllDirected(Start, Goal, Edges, Paths) :-
-    findall(Path, dfsRecursiveDirected(Start, Goal, Edges, [], Path), Paths).
-
-% Entry point for undirected DFS, finds all possible paths.
-% Paths might contain duplicates if different traversal sequences lead to the same node sequence.
-dfsAllUndirected(Start, Goal, Edges, Paths) :-
-    findall(Path, dfsRecursiveUndirected(Start, Goal, Edges, [], Path), Paths).
+% Zoek ALLE paden via findall
+dfsAllDirectioned(Start, Goal, Edges, Paths) :-
+    findall(Path, dfsRecursiveDirectioned(Start, Goal, Edges, [], Path), Paths).
+dfsAllUndirectioned(Start, Goal, Edges, Paths) :-
+    findall(Path, dfsRecursiveUndirectioned(Start, Goal, Edges, [], Path), Paths).
 
 /*
-  ?- get_edges(Edges), dfsAllUndirected(london, london, Edges, Paths).
+  ?- get_edges(Edges), dfsAllUndirectioned(london, london, Edges, Paths).
   Edges = [(london, paris), (london, dublin), (paris, rome), (paris, berlin), (rome, athens), (berlin, warsaw), (dublin, edinburgh), (edinburgh, london)],
   Paths = [[london, paris, london], [london, dublin, edinburgh, london], [london, dublin, london], [london, edinburgh, london], [london, edinburgh, dublin, london]].
 
-  ?- get_edges(Edges), dfsAllDirected(london, london, Edges, Paths).
+  ?- get_edges(Edges), dfsAllDirectioned(london, london, Edges, Paths).
   Edges = [(london, paris), (london, dublin), (paris, rome), (paris, berlin), (rome, athens), (berlin, warsaw), (dublin, edinburgh), (edinburgh, london)],
   Paths = [[london, dublin, edinburgh, london]].
 */
 
 
 
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%
+%%% BREEDTE-EERST %%%
+%%%%%%%%%%%%%%%%%%%%%
+
+
 bfsDirectioned(Start, Goal, Edges, Path) :- 
   Queue = [[Start] | Qtail] - Qtail,
   bfsDirectionedRecursive(Queue, Goal, Edges, [], Path).
 
+
 % Basisgeval: doel bereikt
 bfsDirectionedRecursive([[Goal | RestOfPath] | _] - _, Goal, _, _, Path) :-
-  reverse([Goal | RestOfPath], Path).
+  reverse([Goal | RestOfPath], Path),
+  !. % stop als je het kortste pad hebt gevonden
 
 bfsDirectionedRecursive([CurrentPath | OtherPaths] - Qtail, Goal, Edges, Visited, Path) :-
 
@@ -124,16 +137,19 @@ bfsDirectionedRecursive([CurrentPath | OtherPaths] - Qtail, Goal, Edges, Visited
       [NextNode | CurrentPath],
       (
           member((CurrentNode, NextNode), Edges),
-          (
-            (\+ member(NextNode, NewVisited)) ;
-            NextNode == Goal
-          )
+          \+ member(NextNode, NewVisited)
       ),
       NewPaths
   ),
 
-  % Voeg de nieuwe paden toe aan het einde van de queue
-  Qtail = [ NewPaths | NewQtail],
+  %% Voeg de nieuwe paden toe aan het einde van de queue
+  
+  % Onderstaande werkt niet, aangezien NewPaths een lijst van lijsten is!
+  % Qtail = [ NewPaths | NewQtail],
+
+  % Daarom moeten we de lijst van lijsten eerst afvlakken....
+  append(NewPaths, NewQtail, Qtail),
+
   % Nieuwe queue: 
   % (1) huidig pad is gepopt
   % (2) nieuwe paden zijn gepusht vanachter (zie hierboven)
@@ -145,9 +161,18 @@ bfsDirectionedRecursive([CurrentPath | OtherPaths] - Qtail, Goal, Edges, Visited
 
 
 
+/* VOORBEELD
+?- get_edges(Edges), bfsDirectioned(london, berlin, Edges, Path).
+Edges = [(london, paris), (london, dublin), (paris, rome), (paris, berlin), (rome, athens), (berlin, warsaw), (dublin, edinburgh), (edinburgh, london)],
+Path = [london, paris, berlin].
+*/
+
+
+
+
 /*
 
-TEST
+TEST: wat gebeurt er als je van/op de queue popt/pusht
 
 Q = [[1,2,3],[3,4] | Tail]-Tail, 
 [CurrentPath | OtherPaths] - Qtail = Q, 
