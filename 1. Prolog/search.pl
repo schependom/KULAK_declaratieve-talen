@@ -118,11 +118,16 @@ bfsDirectioned(Start, Goal, Edges, Path) :-
   Queue = [[Start] | Qtail] - Qtail,
   bfsDirectionedRecursive(Queue, Goal, Edges, [], Path).
 
-
-% Basisgeval: doel bereikt
-bfsDirectionedRecursive([[Goal | RestOfPath] | _] - _, Goal, _, _, Path) :-
-  reverse([Goal | RestOfPath], Path),
-  !. % stop als je het kortste pad hebt gevonden
+% Base case: Goal found
+bfsDirectionedRecursive(QHead - QTail, Goal, _, _, Path) :-
+    % Convert difference list to proper list
+    append(Paths, QTail, QHead),
+    member([Goal | PadNaarGoal], Paths),
+    reverse([Goal | PadNaarGoal], Path),
+    print(QHead),
+    print(""),
+    print(Paths),
+    !.
 
 bfsDirectionedRecursive([CurrentPath | OtherPaths] - Qtail, Goal, Edges, Visited, Path) :-
 
@@ -194,3 +199,68 @@ CurrentNode = 1,
 NewQ = [[3, 4], [[6, 1, 2, 3], [9, 1, 2, 3]]|NewTail]-NewTail.
 
 */
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%
+%%% HOORCOLLEGE %%%
+%%%%%%%%%%%%%%%%%%%
+
+% Geen oplossing
+solve_bfs([],_,_) :- !,fail.
+
+% Oplossing
+solve_bfs(Staten,_,(Stappen,Toestand)) :- 
+  member((Stappen,Toestand),Staten),
+  eindToestand(Toestand),
+  !.
+
+solve_bfs(Vorig,Bezocht,Resultaat) :-
+  findall(
+    ([Stap|Stappen],NieuweToestand),
+    ( 
+      member((Stappen,Toestand),Vorig),
+      overgang(Toestand,Stap,NieuweToestand), 
+      geldig(NieuweToestand),
+      \+ member(NieuweToestand,Bezocht)
+    ),
+    Volgend
+  ),
+  %schrijf(Volgend,NewBezocht),
+  update_history(Volgend, Bezocht, NewBezocht),
+  solve_bfs(Volgend,NewBezocht,Resultaat).
+
+schrijf([],[]).
+schrijf([(_,Toestand)|Rest],[Toestand|RestBezocht]) :- schrijf(Rest,RestBezocht).
+
+% A predicate to collect states from Volgend and append them to Historie
+update_history(Volgend, Historie, NieuweHistorie) :-
+    % First, extract the states from Volgend
+    findall(State, member((_,State), Volgend), StatesFromVolgend),
+    % Then, append these new states to the existing Historie
+    append(Historie, StatesFromVolgend, NieuweHistorie).
+
+test_bfs(Resultaat) :- begin(T),solve_bfs([([],T)],[],Resultaat).
+
+begin(wgk(links,[geit,kool,wolf],[])).
+eindToestand(wgk(rechts,[],[geit,kool,wolf])).
+overgang(wgk(links,L1,R1),lr(Kand),wgk(rechts,L2,R2)):-
+  select(Kand,L1,L2), % select zoals in les4
+  insert(Kand,R1,R2).
+overgang(wgk(rechts,L1,R1),rl(Kand),wgk(links,L2,R2)):-
+  select(Kand,R1,R2),
+  insert(Kand,L1,L2).
+overgang(wgk(B1,L,R),alleen,wgk(B2,L,R)):-
+  andere(B1,B2).
+andere(links,rechts).
+andere(rechts,links).
+geldig(wgk(links,_,R)):- \+ gevaar(R).
+geldig(wgk(rechts,L,_)) :- \+ gevaar(L).
+gevaar(L) :- member(wolf,L), member(geit,L).
+gevaar(L):- member(geit,L), member(kool,L).
+insert( Kand,L,Sorted):- sort([Kand|L], Sorted).
