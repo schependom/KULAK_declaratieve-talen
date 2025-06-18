@@ -91,34 +91,30 @@ collatzAchtigRec(P, [H | T], Res) :-
 %   - Controleer of het lemma bestaat
 %   - Als het bestaat, gebruik het EN CUT!!
 
+% T is een variabele
+present(N, L-T) :- 
+  var(T), !,          % als de tail een veranderlijke is, dan cutten we
+  member(N, L),!,     % als N voorkomt in de lijst L, of als L een variabele is, dan cutten we
+  var(T).             % ! Als N niet aanwezig is in de veranderlijke L, zal member als generator werken en N toevoegen aan T (dan komt N dus niet voor in het verschil) -> T is dan geen vrije veranderlijke meer
 
+% Er zijn elementen aanwezig in T
+present(N, L-[THead|TTail]) :- 
+  THead \= N, % N mag niet voorkomen in de tail
+  present(N, L-TTail).
 
-%% present(+X, ?Lijst)
-% True if X occurs in List-Tail, but not in Tail.
-present(X, List-Tail) :-
-  \+ occurs_in_tail(X, Tail),
-  occurs_in_diff_list(X, List, Tail).
+/*
+?- present(10, T-T).
+false.
 
-%% occurs_in_diff_list(+X, +List, +Tail)
-% True if X syntactically occurs in List before reaching Tail.
-occurs_in_diff_list(X, [H|_], _) :-
-  X == H, !.
-occurs_in_diff_list(X, [H|Rest], Tail) :-
-  [H|Rest] \== Tail,
-  occurs_in_diff_list(X, Rest, Tail).
+?- present(10, [1,2,3|R]-R).
+false.
 
-%% occurs_in_tail(+X, +Tail)
-% True if X syntactically occurs in the tail.
-occurs_in_tail(_, Tail) :-
-  var(Tail), !, fail.       % Open tail — assume X not in it
-occurs_in_tail(_, []) :- !, fail.
-occurs_in_tail(X, [Y|Rest]) :-
-  X == Y, !.
-occurs_in_tail(X, [_|Rest]) :-
-  occurs_in_tail(X, Rest).
+?- present(10, [1,2,3,10|R]-R).
+true.
 
-
-
+?- present(10, [1,2,3,10]-[10]).
+false.
+*/
 
 
 
@@ -127,21 +123,35 @@ collatzLike(P, X, L) :-
 
 collatzLike(P, X, Res) :-
   natuurlijkStrikt(X),
-  DL = [X|Tail]-Tail,
-  collatz_rec(P, DL, Res),
+  collatzLike_rec(P, X, [X | T]-T, Res),
   assert(lemma_collatz_achtig(P, X, Res)).
 
-%% collatzLikeRec(Predicaat, DifferenceList, Res)
-collatz_rec(P, Head-Tail, Result) :-
-  Head = [H|_],
-  call(P, H, Next),
-  (   present(Next, Head-Tail)
-  ->  Tail = [Next|NewTail],
-      Result = Head-NewTail
-  ;   Tail = [Next|NewTail],
-      NextDL = Head-NewTail,
-      collatz_rec(P, NextDL, Result)
-  ).
 
+
+%% collatzLike(Predicaat, Huidig, DifferenceList, Resultaat)
+
+% Als huidig in DL zit, unificeer DL met resultaat
+collatzLike(_, Huidig, Resultaat, Resultaat) :-
+  present(Huidig, Resultaat),
+  !.
+
+% Als huidig NIET in DL zit, zoek volgende
+collatzLike(P, Huidig, Head-OldTail, Resultaat) :-
+  call(P, Huidig, Volgend),
+  % Voeg Volgend toe aan het eind van de lijst
+  OldTail = [Volgend | NewTail],
+  collatzLike(P, Volgend, Head-NewTail, Resultaat).
+
+
+
+/*
+?- collatzLike(modulo47Step,100,T-T),print(T-T).
+@(S_1-S_1,[S_1=[100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,95,96,97,98,99,100|S_1]])
+T = [100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,95,96,97,98,99,100|$VAR(T)].
+
+?- collatzLike(modulo47Step,100,R),print(R).
+[100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,95,96,97,98,99,100|_13372]-_13372
+R = [100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,95,96,97,98,99,100|_13372]-_13372.
+*/
 
 
