@@ -2,7 +2,7 @@
 {-# LANGUAGE InstanceSigs #-}
 
 import Control.Monad
-import qualified Data.Map as M
+import Data.Map qualified as M
 
 ---------
 --- 1 ---
@@ -38,7 +38,7 @@ mcoll x s
            in (v, sn)
 
 -- ! Merk op !
--- Partiele applicatie (enkel Int) geven leidt tot een signatuur
+-- Partiele applicatie (enkel Int geven) leidt tot een signatuur
 -- Smap -> (Int, Smap) = s -> (a,s) = SP s a = SP Smap Int
 
 -- s = (M.Map Int Int)
