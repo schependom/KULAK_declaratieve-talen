@@ -11,24 +11,24 @@
 % voorkomt.
 
 % natuurlijk getal
-natuurlijk(X) :- integer(X), X>=0.
+natuurlijkStrikt(X) :- integer(X), X>0.
 
 collatz(X, CR) :- lemma_collatz(X,CR), !.
 
 collatz(X, CR) :-
-  natuurlijk(X),
-  collatzRec([X], [X], CR),
+  natuurlijkStrikt(X),
+  collatzRec([X], CR),
   assert(lemma_collatz(X,CR)). % onthou de rij
 
 %% collatzRec(+AccRes, +AlGehad, -Resultaat)
-collatzRec([H | T], AlGehad, Res) :-
+collatzRec([H | T], Res) :-
   opvolger(H, Opvolger),
   (
     % Als getal al in de rij voorkomt ...
-    member(Opvolger, AlGehad) ->
+    member(Opvolger, [H | T]) ->
       reverse([Opvolger, H | T], Res) % ... is de rij af.
     ;
-      collatzRec([Opvolger, H | T], [Opvolger | AlGehad], Res)
+      collatzRec([Opvolger, H | T], Res)
   ).
 
 even(X) :- X mod 2 =:= 0.
@@ -62,19 +62,19 @@ modulo47Step(Y, Z) :-
 collatzAchtig(P, X, L) :- lemma_collatz_achtig(P,X,L), !.
 
 collatzAchtig(P, X, L) :-
-  natuurlijk(X),
-  collatzAchtigRec(P, [X], [X], L),
+  natuurlijkStrikt(X),
+  collatzAchtigRec(P, [X], L),
   assert(lemma_collatz_achtig(P,X,L)). % onthou de rij
 
-collatzAchtigRec(P, [H | T], AlGehad, Res) :-
+collatzAchtigRec(P, [H | T], Res) :-
   BerekenOpvolger =.. [P, H, Opvolger],
   call(BerekenOpvolger),
   (
     % Als getal al in de rij voorkomt ...
-    member(Opvolger, AlGehad) ->
+    member(Opvolger, [H | T]) ->
       reverse([Opvolger, H | T], Res) % ... is de rij af.
     ;
-      collatzAchtigRec(P, [Opvolger, H | T], [Opvolger | AlGehad], Res)
+      collatzAchtigRec(P, [Opvolger, H | T], Res)
   ).
 
 
@@ -93,19 +93,55 @@ collatzAchtigRec(P, [H | T], AlGehad, Res) :-
 
 
 
-%% present(+X, ?Ver)
-present(X, L-T) :-
-  not_in_tail(X, T),
-  in_difference(X, L, T).
+%% present(+X, ?Lijst)
+% True if X occurs in List-Tail, but not in Tail.
+present(X, List-Tail) :-
+  \+ occurs_in_tail(X, Tail),
+  occurs_in_diff_list(X, List, Tail).
 
-% Controleer of X in het verschil zit: loop tot je bij T bent
-in_difference(X, [X|_], _) :- !.
-in_difference(X, [Y|Rest], T) :-
-  [Y|Rest] \== T,           % Stop als we bij de tail T zijn
-  in_difference(X, Rest, T).
+%% occurs_in_diff_list(+X, +List, +Tail)
+% True if X syntactically occurs in List before reaching Tail.
+occurs_in_diff_list(X, [H|_], _) :-
+  X == H, !.
+occurs_in_diff_list(X, [H|Rest], Tail) :-
+  [H|Rest] \== Tail,
+  occurs_in_diff_list(X, Rest, Tail).
 
-% Controleer dat X niet in de tail voorkomt
-not_in_tail(_, []) :- !.
-not_in_tail(X, [Y|Rest]) :-
-  X \== Y,
-  not_in_tail(X, Rest).
+%% occurs_in_tail(+X, +Tail)
+% True if X syntactically occurs in the tail.
+occurs_in_tail(_, Tail) :-
+  var(Tail), !, fail.       % Open tail — assume X not in it
+occurs_in_tail(_, []) :- !, fail.
+occurs_in_tail(X, [Y|Rest]) :-
+  X == Y, !.
+occurs_in_tail(X, [_|Rest]) :-
+  occurs_in_tail(X, Rest).
+
+
+
+
+
+
+collatzLike(P, X, L) :-
+  lemma_collatz_achtig(P, X, L), !.
+
+collatzLike(P, X, Res) :-
+  natuurlijkStrikt(X),
+  DL = [X|Tail]-Tail,
+  collatz_rec(P, DL, Res),
+  assert(lemma_collatz_achtig(P, X, Res)).
+
+%% collatzLikeRec(Predicaat, DifferenceList, Res)
+collatz_rec(P, Head-Tail, Result) :-
+  Head = [H|_],
+  call(P, H, Next),
+  (   present(Next, Head-Tail)
+  ->  Tail = [Next|NewTail],
+      Result = Head-NewTail
+  ;   Tail = [Next|NewTail],
+      NextDL = Head-NewTail,
+      collatz_rec(P, NextDL, Result)
+  ).
+
+
+
