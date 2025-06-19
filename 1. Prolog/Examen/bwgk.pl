@@ -88,14 +88,13 @@ list([_|T]) :- list(T).
 % Basisgeval
 bfs_loop([(CurrentState, CurrentPath)|_]-_, _, Path) :-
     eindToestand(CurrentState),
-    reverse(CurrentPath, Path).
+    reverse(CurrentPath, Path), !.
 
 % Recursief geval
-bfs_loop([CurrentStateAndPath|RestStatesAndPaths]-Q_Tail, Visited, Resultaat) :-
+bfs_loop([CurrentStateAndPath|Q_Head_Rest]-Q_Tail_Current, Visited, Resultaat) :-
+
     % Dequeue de huidige state en het huidige pad
     CurrentStateAndPath = (CurrentState, CurrentPath),
-    % De queue mag niet leeg zijn
-    [CurrentStateAndPath|RestStatesAndPaths] \== Q_Tail,
 
     % Zet alleen geldige states op de queue!
     findall(
@@ -107,25 +106,32 @@ bfs_loop([CurrentStateAndPath|RestStatesAndPaths]-Q_Tail, Visited, Resultaat) :-
       ),
       NewStatesAndPaths
     ),
-    (   NewStatesAndPaths \== []
-    ->  % Nieuwe states gevonden => ENQUEUE
-        enqueue_all(NewStatesAndPaths, RestStatesAndPaths, NextQ_Tail, ExtraVisitedStates),
-        append(ExtraVisitedStates, Visited, NewVisitedStates),
-        bfs_loop(RestStatesAndPaths-NextQ_Tail, NewVisitedStates, Resultaat)
-    ;   % Geen nieuwe states gevonden => GA VERDER MET HUIDIGE QUEUE
-        bfs_loop(RestStatesAndPaths-Q_Tail, Visited, Resultaat)
-    ).
+
+    % Enqueue de nieuwe staten en krijg de nieuwe staart van de queue
+    enqueue_all(NewStatesAndPaths, Q_Tail_Current, NewQ_Tail, ExtraVisitedStates),
+
+    % Update de bezochte statenlijst (nog steeds met append)
+    append(Visited, ExtraVisitedStates, NewVisitedStates),
+
+    % Recursieve aanroep met de bijgewerkte queue en bezochte staten
+    % Q_Head_Rest is de nieuwe kop van de queue na het verwijderen van CurrentStateAndPath.
+    bfs_loop(Q_Head_Rest-NewQ_Tail, NewVisitedStates, Resultaat).
 
 % Geen oplossing (Queue is leeg!)
 bfs_loop(EmptyQueueHead-EmptyQueueTail, _, _) :-
     EmptyQueueHead == EmptyQueueTail,
-    fail.
+    fail. % No solution found
 
-%% enqueue_all(ListOfElements, OldQueueTail, NewQueueTail, ExtraVisitedStates)
-
+%% enqueue_all(ListOfElements, CurrentQueueTail, FinalQueueTail, ExtraVisitedStates)
+% Voegt een lijst van elementen toe aan een difference list queue.
+% CurrentQueueTail is de variabele die de huidige 'lege' staart van de queue representeert.
+% FinalQueueTail is de variabele die de 'lege' staart van de queue representeert na het toevoegen van alle elementen.
 enqueue_all([], Tail, Tail, []).
-enqueue_all([(State, Path)|Rest], [(State, Path)|NextTail], FinalTail, [State|ExtraVisitedStates]) :-
-    enqueue_all(Rest, NextTail, FinalTail, ExtraVisitedStates).
+enqueue_all([StateEnPad|Rest], CurrentQueueTail, FinalQueueTail, [State|ExtraVisitedStates]) :-
+    StateEnPad = (State, _), 
+    CurrentQueueTail = [StateEnPad|NextQueueTail], 
+    enqueue_all(Rest, NextQueueTail, FinalQueueTail, ExtraVisitedStates).
+
 
 
 
@@ -157,3 +163,4 @@ testBFS(Path) :-
 %   ], 
 %   _58
 % )
+

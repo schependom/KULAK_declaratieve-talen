@@ -12,7 +12,7 @@ tekenBord h b lijnen = do
   -- VRAAG INPUT
   putStrLn "Tekenen (j/n)?"
   yesNo <- getLine
-  -- geen if not good maar eerder is wel good en helemaal op het einde else
+  -- geen [if not good] maar eerder [is wel good] en helemaal op het einde else
   if yesNo == "ja"
     then do
       hoogte <- haalGetal "Hoogte?" 0 (h - 1)

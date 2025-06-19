@@ -140,13 +140,39 @@ FinalX = [2|_A]-_A.
 % T is een variabele
 present(N, L-T) :- 
   var(T), !,          % als de tail een veranderlijke is, dan cutten we
-  member(N, L),!,     % als N voorkomt in de lijst L, of als L een variabele is, dan cutten we
+  member(N, L),       % als N voorkomt in de lijst L, of als L een variabele is, dan cutten we
   var(T).             % ! Als N niet aanwezig is in de veranderlijke L, zal member als generator werken en N toevoegen aan T (dan komt N dus niet voor in het verschil) -> T is dan geen vrije veranderlijke meer
 
 % Er zijn elementen aanwezig in T
 present(N, L-[THead|TTail]) :- 
   THead \= N, % N mag niet voorkomen in de tail
   present(N, L-TTail).
+
+
+present_dl(X, H-T) :-
+    % Clause 1: Base case - X is the head of the current list segment H.
+    % We ensure that H is sufficiently instantiated (not a free variable)
+    % and that H is not yet the tail T (meaning there are still elements).
+    nonvar(H),   % Ensure H is not a completely uninstantiated variable.
+                 % This prevents generating infinite lists if H and T are unrelated.
+    H \== T,     % Crucial check: H must be distinct from T.
+                 % If H is identical to T, it means we've reached the end of the
+                 % effective list (the "hole"), and there are no more elements.
+    H = [X|_].   % Unify H with a list whose head is X.
+                 % If H is already a list, X will be unified with its head.
+                 % If H is a variable (after nonvar check, implies a partial list
+                 % like [_|Z]), it will be instantiated to [X|_].
+
+present_dl(X, H-T) :-
+    % Clause 2: Recursive case - X is in the tail of the current list segment H.
+    % Similar to the base case, we ensure H is a list and not yet the tail.
+    nonvar(H),   % Ensure H is not a completely uninstantiated variable.
+    H \== T,     % H must be distinct from T to continue traversing.
+    H = [_|Rest],% Unify H with a list and extract its tail 'Rest'.
+                 % This advances the 'current list segment' pointer.
+    present_dl(X, Rest-T). % Recursively call present/2 with the new list segment (Rest).
+
+
 
 
 

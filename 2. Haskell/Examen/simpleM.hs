@@ -330,8 +330,10 @@ someC = C 0 (-3)
 
 testLaws :: [Bool]
 testLaws =
-  [ x5 101 == (return 101 >>= x5), -- left unit law:  (return x >>= f) == (f x)
+  [ -- voor L.U.L. (Left Unit Law XD), moet f::a->mb
+    x5 101 == (return 101 >>= x5), -- left unit law:  (return x >>= f) == (f x)
     someC == (someC >>= return), -- right unit law:   (m >>= return) == m
+    -- 2 checks...
     (someC >>= x5 >>= (xvt (-10) 3)) == (someC >>= (\x -> (x5 x) >>= (xvt (-10) 3))), -- associativity law
     (someC >>= (xvt (-10) 3) >>= (x5)) == (someC >>= (\x -> ((xvt (-10) 3 x) >>= (x5))))
   ]

@@ -79,6 +79,15 @@ findIndex, elemIndex en lookup uit Array.List
 -- Char met ''
 -- String met ""
 
+-- ! findIndex :: (a -> Bool) -> [a] -> Maybe Int
+-- findIndex isSpace "Hello World!"
+-- Just 5
+
+-- ! elemIndex :: a -> [a] -> Maybe Int
+
+-- lookup
+-- ! lookup :: Eq a => a -> [(a, b)] -> Maybe b
+
 rhymes :: [String] -> [String] -> Bool
 rhymes l1 l2 =
   drop i1 l1 == drop i2 l2
