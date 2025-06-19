@@ -66,14 +66,28 @@ ham2(Graaf, Pad) :-
   get_all_vertices(Graaf, AlleVertices),
   AlleVertices = [StartVertex | RestVertices],    % Pad begint met StartVertex
 
-  % Leg beperkingen op via freeze
-  % Vanaf Pad gebonden wordt, worden de condities gecheckt.
-  freeze(
-    Pad, 
-    % Leg voorwaarden hamiltonian op
-    is_hamiltonian(StartVertex, Pad, Graaf)
-  ),
+  % Check on the go of de (gedeeltelijke!) permutaties de 
+  % condities niet schaadt.
+  is_hamiltonian_on_the_go(StartVertex, PermutatieRest, Graaf),
 
   % Genereer permutatie van de resterende vertices en unificeer met Pad
   permutation(RestVertices, PermutatieRest),
   Pad = [StartVertex | PermutatieRest].
+
+
+is_hamiltonian_on_the_go(Start, [Last], Bogen) :-
+  member(b(Last, Start), Bogen).
+is_hamiltonian_on_the_go(Start, [Current, Next | Rest], Bogen) :-
+  % Voer check uit wanneer Next gebonden is
+  freeze(
+    Next,
+    % De check:
+    (
+      member(b(Current, Next), Bogen),                      % dit wordt direct uitgevoerd
+      is_hamiltonian_on_the_go(Start, [Next | Rest], Bogen) % hier gaan we opnieuw wachten tot de volgende (na next) is gebonden!)
+    )
+  ).
+
+
+
+

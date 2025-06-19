@@ -12,8 +12,11 @@ findloops([], AllLoops,AllLoops).
 
 findloops(Arrows,AccLoops,AllLoops) :-
 	Arrows = [arrow(Start,_)|_],
-	findall([Start|Path],
-	path(Start,Start,Arrows,[],Path),LoopsFromStart),
+	findall(
+		[Start|Path],
+		path(Start,Start,Arrows,[],Path),
+		LoopsFromStart
+	),
 	append(LoopsFromStart,AccLoops,NewAccLoops),
 	delete_node(Arrows,Start,RestArrows),
 	findloops(RestArrows,NewAccLoops,AllLoops) .
@@ -22,10 +25,11 @@ path(Start,Current,Arrows,Visited,Loop) :-
 	member(arrow(Current,Next),Arrows),
 	\+ member(Next,Visited),
 	Loop = [Next|RestLoop],
-	( Next == Start ->
-	RestLoop = []
-	;
-	path(Start,Next,Arrows,[Next|Visited],RestLoop)
+	( 
+		Next == Start ->
+			RestLoop = []
+		;
+		path(Start,Next,Arrows,[Next|Visited],RestLoop)
 	).
 
 delete_node( [], _, []).

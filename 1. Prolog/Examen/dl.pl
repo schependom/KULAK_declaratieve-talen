@@ -126,3 +126,40 @@ Y = 1,
 FinalX = [2|_A]-_A.
 
 */
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%
+%%% MEMBER %%%
+%%%%%%%%%%%%%%
+
+% T is een variabele
+present(N, L-T) :- 
+  var(T), !,          % als de tail een veranderlijke is, dan cutten we
+  member(N, L),!,     % als N voorkomt in de lijst L, of als L een variabele is, dan cutten we
+  var(T).             % ! Als N niet aanwezig is in de veranderlijke L, zal member als generator werken en N toevoegen aan T (dan komt N dus niet voor in het verschil) -> T is dan geen vrije veranderlijke meer
+
+% Er zijn elementen aanwezig in T
+present(N, L-[THead|TTail]) :- 
+  THead \= N, % N mag niet voorkomen in de tail
+  present(N, L-TTail).
+
+
+
+%% collatzLike(Predicaat, HuidigGetal, DifferenceList, Resultaat)
+
+% Als huidig in DL zit, unificeer DL met resultaat
+collatzLike(_, Huidig, Resultaat, Resultaat) :-
+  present(Huidig, Resultaat),
+  !.
+
+% Als huidig NIET in DL zit, zoek volgende
+collatzLike(P, Huidig, Head-OldTail, Resultaat) :-
+  call(P, Huidig, Volgend),
+  % ! Voeg Volgend toe aan het eind van de lijst
+  OldTail = [Volgend | NewTail],
+  collatzLike(P, Volgend, Head-NewTail, Resultaat).

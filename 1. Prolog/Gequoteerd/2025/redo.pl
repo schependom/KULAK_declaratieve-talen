@@ -99,7 +99,7 @@ pad(Path) :-
     pad((1,1), [(1,1)], PathRev), % Start bij (1,1)
     reverse(PathRev, Path).
 
-%% pad(+Acc, +Alternatieven, -ResPath)
+%% pad(+CurrPos, +CurrPath, -ResPath)
 
 % Base case: bestemming bereikt
 pad((X,Y), CurrentPath, CurrentPath) :-
@@ -233,8 +233,7 @@ solve_domino(Dominos, Chain) :-
 % Geen dominos meer over
 % Check of begin gelijk is aan eind
 solve_domino([], [(First,Second) | Rest], [(First,Second) | Rest]) :- 
-  last(Rest, (_, Last)),
-  First == Last.
+  last(Rest, (_, First)).
 
 % Symmetrische resultaten als je dit doet!
 /*solve_domino(Dominos, [], Chain) :-
@@ -320,7 +319,7 @@ first_all_biggest_chains([(_-FirstSubset) | RestSubsets], Solution) :-
     ( Oplossingen == []
       -> 
         % Geen oplossingen => ga naar kleinere subset
-        first_domino_chain(RestSubsets, Solution)
+        first_all_biggest_chains(RestSubsets, Solution)
       ; 
         % Wel oplossingen => lijst ze ALLEMAAL op!
         member(Solution, Oplossingen)
