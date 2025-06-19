@@ -90,7 +90,11 @@ instance Monad Cum where
   (>>=) :: Cum a -> (a -> Cum b) -> Cum b
   (>>=) (C b x) f =
     let C bf y = f x -- bf is het aantal binds van f
-     in C (bf + b + 1) y -- voeg het aantal binds van f en het huidige aantal binds toe, plus 1 voor de bind zelf
+     in C (bf + b) y -- voeg het aantal binds van f en het huidige aantal binds toe
+
+-- je moet (bf+b+1) doen als je het aantal binds wil tellen, maar
+-- we hebben de implementatie aangepast zodat enkel het aantal
+-- toegangen tot lijstelementen wordt geteld.
 
 lees :: (Read a) => String -> Cum a
 lees s = C 0 (read s)
@@ -213,6 +217,13 @@ die op drie manieren een getal zoekt in een stijgende rij van drievouden,
 het resultaat en het aantal binds rapporteert
 
 Oef: pas de functies aan zodat enkel toegangen tot lijstelementen geteld worden
+
+  => Hiervoor moet je (>>=) aanpassen, zodat het nieuwe aantal binds gelijk
+     is aan het oude aantal binds + het aantal binds van de functie, maar niet
+     sowieso plus 1 doen.
+  => We voegen expliciet bij functies die toegang tot de lijst doen
+     een bind toe, zodat we het aantal binds kunnen bijhouden.
+     Dit kan aan de hand van [_ <- C 1 ()].
 -}
 
 -- Controleert of de Cum (Monad) van een lijst leeg is
@@ -230,11 +241,13 @@ check f mx my = do
 kop :: Cum [a] -> Cum a
 kop ml = do
   l <- ml
+  _ <- C 1 () -- toegang tot lijstelement -> verhoog de teller met 1
   return (head l)
 
 staart :: Cum [a] -> Cum [a]
 staart ml = do
   l <- ml
+  _ <- C 1 () -- toegang tot lijstelement -> verhoog de teller met 1
   return (tail l)
 
 -- Eq type constraint is nodig om de check functie te kunnen gebruiken
@@ -284,6 +297,7 @@ evallijst e ml = do
 pik :: Int -> Cum [a] -> Cum a
 pik p ml = do
   l <- ml
+  _ <- C 1 ()
   return (l !! p)
 
 -- Vind met binary search, in plaats van ganse lijst (of op basis van stijgende volgorde)
