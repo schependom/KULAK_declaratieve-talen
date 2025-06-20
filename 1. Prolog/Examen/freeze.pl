@@ -73,7 +73,7 @@ sortedOnTheGo([X,Y | Rest]) :-
     Y, 
     (
       X =< Y,                   % als Y gebonden is, is X dat ook -> check of X =< Y
-      sortedOnTheGo([Y | Rest]) % Nu is Y gelijk aan X in de clause head en wachten we tot de volgende (Z) gebonden is!
+      sortedOnTheGo([Y | Rest]) % Check de rest
     )
   ).
 

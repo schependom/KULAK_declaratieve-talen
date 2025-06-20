@@ -1,0 +1,1 @@
+star([star,up,star,up,star,up,star,up,right,right,right,star,left,star,left,star,left,star,left,star,left,star,left,star,left,left,left,left,left,down,star,down,star,down,star,down,left,star,left,star,left,star,left,star,up,star,up,star,up,star,up,star,right,star,right,star,right,star]).

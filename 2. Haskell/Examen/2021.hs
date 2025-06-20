@@ -50,6 +50,9 @@ mcoll start huidigeState
 memoColl :: Int -> State StateMap Int
 memoColl x = State (mcoll x)
 
+memoColl' :: Int -> State StateMap Int
+memoColl' x = modify (mcoll x)
+
 -- =====
 -- = 3 =
 -- =====
