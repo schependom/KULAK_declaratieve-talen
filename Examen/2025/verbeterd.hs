@@ -4,39 +4,46 @@ import Data.Complex
 import Data.Int
 import Data.List
 
--- data Nullen
---   = N [Double]
---   | C [Complex Double]
+-- Algebraic Data Types
+data Nullen a = N [a]
+data Polynoom a = P [a]
 
--- t is ofwel Double ofwel (Complex Double)
+-- Typeclass voor de toegelaten types voor a
+class (Num a, Show a) => AllowedType a where
+  isNeg :: a -> Bool
+  showP :: a -> String
 
--- te weinig tijd om dit polymorfisme te implementeren...
--- dus ik heb het enkel voor Double gedaan.
-data Nullen = N [Double]
+-- We gebruiken de typeconstraint (Num a) omdat
+-- we anders problemem krijgen als we AllowedTypes
+-- in een lijst steken met andere getallen.
 
-data Polynoom = P [Double]
+-- Instanties van de hierboven gedefinieerde typeklasse
+-- voor Double en Complex Double.
+instance AllowedType Double where
+  isNeg x = x < 0
+  showP = show
+
+-- Geen elegante oplossing voor complexe getallen...
+instance AllowedType (Complex Double) where
+  isNeg (r :+ i) = r < 0 || (r == 0 && i < 0)
+  showP z@(r :+ i) =
+    if i == 0
+      then show r
+      else
+        let (sign, val) = if isNeg z then ("-", -z) else ("", z)
+            (vr, vi) = case val of (r' :+ i') -> (r', i')
+         in sign ++ "(" ++ show vr ++ (if vi > 0 then "+" else "") ++ show vi ++ "i)"
 
 -- =======
--- OEFENING 2.2
+-- OEFENING 2.1
 -- =======
 
-instance Show (Polynoom) where
-  show :: (Polynoom) -> String
-  show (P coefLijst) =
-    let graad = length coefLijst - 1
-     in go graad coefLijst
-    where
-      go :: Int -> [Double] -> String
-      go _ [] = []
-      go gr (x : xs) =
-        let graadString
-              | gr == 0 = ""
-              | gr == 1 = "x"
-              | otherwise = "x^" ++ show gr
-            teken
-              | x >= 0 = "+"
-              | otherwise = ""
-         in teken ++ " " ++ show x ++ graadString ++ go (gr - 1) xs
+-- De lijst coefficenten gaat van hoogste naar laagste graad
+polynoom :: AllowedType a => Nullen a -> Polynoom a
+polynoom (N [a]) = P [1, -a]
+polynoom (N [a, b]) = P [1, -(a + b), a * b]
+polynoom (N [a, b, c]) = P [1, -(a + b + c), a * b + a * c + b * c, -(a * b * c)]
+polynoom (N (a:b:c:rest)) = error "Graad is te hoog"
 
 {-
 ghci> polynoom (N [1.0,2.0])
@@ -44,15 +51,25 @@ ghci> polynoom (N [1.0,2.0])
 -}
 
 -- =======
--- OEFENING 2.1
+-- OEFENING 2.2
 -- =======
 
--- de lijst coefficenten gaat van hoogste naar laagste graad
-polynoom :: Nullen -> Polynoom
--- polynoom (N l) = if length l > 3 then error "Graad is te hoog"
-polynoom (N [a]) = P [1, -a]
-polynoom (N [a, b]) = P [1, -(a + b), a * b]
-polynoom (N [a, b, c]) = P [1, -(a + b + b), a * b + a * c + b * c, a * b * c]
+instance (AllowedType a) => Show (Polynoom a) where
+  show (P coefLijst) =
+    let graad = length coefLijst - 1
+     in go graad coefLijst
+    where
+      go :: Int -> [a] -> String
+      go _ [] = []
+      go gr (x : xs) =
+        let graadString
+              | gr == 0 = ""
+              | gr == 1 = "x"
+              | otherwise = "x^" ++ show gr
+            teken
+              | not (isNeg x) = "+"
+              | otherwise = ""
+         in teken ++ " " ++ showP x ++ graadString ++ go (gr - 1) xs
 
 -- =======
 -- OEFENING 2.3.1
@@ -62,9 +79,6 @@ randomAdd :: (RandomGen g) => [Int] -> State g [Int]
 randomAdd list = do
   n <- modify next
   return (n : list)
-
-radd4assoc :: (RandomGen g) => State g [Int]
-radd4assoc = randomAdd [] >>= (\s -> randomAdd s >>= (\sNew -> randomAdd sNew >>= randomAdd))
 
 -- =======
 -- OEFENING 2.3.2

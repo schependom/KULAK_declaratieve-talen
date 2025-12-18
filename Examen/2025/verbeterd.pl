@@ -1,6 +1,13 @@
 %% star(+Commands)
 % Commands is een lijst van commando's
 
+
+
+
+%%%%%%%
+%% 1 %%
+%%%%%%%
+
 collect_stars(Commandos, Output) :-
   % Zet accumulator op []
   collect_stars((0,0), Commandos, [], Output).
@@ -37,6 +44,15 @@ S = [star(5,0)] ;
 S = [star(0,-1),star(0,0)] ;
 */
 
+
+
+
+
+
+%%%%%%%
+%% 2 %%
+%%%%%%%
+
 % Hulpfunctie
 writeSpaces(0) :- !.
 writeSpaces(N) :-
@@ -60,8 +76,9 @@ write1line([star(X, Y) | T], Y, CurrPos) :- !,
 
 
 
-
-
+%%%%%%%%%%%%%%%%%
+%% ALTERNATIEF %%
+%%%%%%%%%%%%%%%%%
 
 %% write1line_alt(StarList, Y, StartCol)
 
@@ -90,13 +107,18 @@ write1line_alt([star(_,Y) | T], Y, CurrPos) :- !,
 
 
 
+%%%%%%%
+%% 3 %%
+%%%%%%%
+
+% Hulpfunctie
 writeLines(Stars, 0, FirstX) :- write1line(Stars,0,FirstX), !.
 writeLines(Stars, Y, FirstX) :-
   write1line(Stars, Y, FirstX), nl,
   NewY is Y - 1,
   writeLines(Stars, NewY, FirstX).
 
-
+% Main functie
 star(Commandos) :-
   collect_stars(Commandos, Stars),
   Stars = [star(FirstX, _) | _],
